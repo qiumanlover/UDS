@@ -64,13 +64,14 @@ namespace UDS.Controllers
             ViewData.Model = EmployeeUser.GetList();
             ViewData["typelist"] = EmployeeUser.GetSelector();
             ViewData["dtypelist"] = EmployeeUser.GetDSelector();
+            ViewData["stypelist"] = EmployeeUser.GetSSelector();
             return PartialView();
         }
 
         public JsonResult EmployeeUserGetInfo(int id)
         {
             EmployeeUser eu = EmployeeUser.GetInfoById(id);
-            object obj = new { id = eu.Id, name = eu.Name, pid = eu.PId, did = eu.DId, spid = eu.SPId, uid = eu.UId, loginname = eu.LoginNname, userlevel = eu.UserLevel };
+            object obj = new { id = eu.Id, name = eu.Name, pid = eu.PId, did = eu.DId, spid = eu.SPId, uid = eu.UId, loginname = eu.LoginName, userlevel = eu.UserLevel };
             return Json(obj, JsonRequestBehavior.AllowGet);
         }
 
@@ -85,6 +86,17 @@ namespace UDS.Controllers
                 EmployeeUser.UpdateInfo(new EmployeeUser(id, name, pid, did, spid, loginname, userlevel));
             }
             return RedirectToAction("EmployeeManager");
+        }
+
+        public ActionResult EmployeeUserCareer(int onjob, int eid)
+        {
+            EmployeeUser.UpdateCareer(onjob, eid);
+            return RedirectToAction("EmployeeManager");
+        }
+
+        public ActionResult FlowManager()
+        {
+            return PartialView();
         }
     }
 }

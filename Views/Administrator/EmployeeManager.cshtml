@@ -22,11 +22,13 @@
         $("input#loginname").val("");
         $("select#userlevel").val("1");
         $("input#submit").val("增加");
+        return false;
     }
     function getinfo(id) {
         ajaxPost("/Administrator/EmployeeUserGetInfo", "id=" + id, function onsuccess(text) {
             var data = $.parseJSON(text);
             $("input#id").val(data.id);
+            $("input#name").val(data.name);
             $("select#pid").val(data.pid);
             $("select#did").val(data.did);
             $("select#spid").val(data.spid);
@@ -75,7 +77,8 @@
             上级职位：
             <select id="spid" name="spid" style="height: 22px;">
                 @{
-    foreach (var item in poslist)
+    var sposlist = ViewData["stypelist"] as List<SelectListItem>;
+    foreach (var item in sposlist)
     {
         <option value="@item.Value">@item.Text</option>
     }
@@ -95,7 +98,7 @@
         </li>
         <li style="float:left;width:15%;text-align:left;">
             <input type="submit" name="submit" id="submit" value="增加" style="width:60px;height:23px;" onclick="return check()" />
-            <input type="submit" value="取消" style="width:60px;height:25px;" onclick="reset()" />
+            <input type="submit" value="取消" style="width:60px;height:25px;" onclick="return reset()" />
         </li>
     </ul>
 }
@@ -103,18 +106,33 @@
 <br />
 <div>
     <ul style="width:100%; min-width:1024px;">
-        <li style="width:20%; float:left; text-align:center">姓名</li>
+        <li style="width:15%; float:left; text-align:right"><label style="width:15%; visibility:hidden;">职业</label></li>
+        <li style="width:5%; float:left; text-align:right"><label style="width:15%; visibility:hidden;">编辑</label></li>
+        <li style="width:10%; float:left; text-align:center">姓名</li>
         <li style="width:15%; float:left; text-align:center">职位</li>
         <li style="width:10%; float:left; text-align:center">部门</li>
         <li style="width:15%; float:left; text-align:center">上级职位</li>
         <li style="width:20%; float:left; text-align:center">登录名</li>
-        <li style="width:10%; float:left; text-align:left"></li>
-        <li style="width:10%; float:left; text-align:left"></li>
     </ul>
     @foreach (var item in Model)
     {
         <ul style="clear:both;width:100%;min-width:1024px;">
-            <li style="width:20%; float:left; text-align:center">
+            <li style="width:15%; float:left; text-align:right">
+                @if (item.IsOnJob)
+                {
+                    @Ajax.ActionLink("离职", "EmployeeUserCareer", new { onjob = 0, eid = @item.Id }, new AjaxOptions() { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "replace" });
+                    @*<a href="javascript:;" onclick="getinfo(@item.Id)">离职</a>*@
+                }
+                else if (!item.IsOnJob)
+                {
+                    @Ajax.ActionLink("在职", "EmployeeUserCareer", new { onjob = 1, eid = @item.Id }, new AjaxOptions() { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "replace" });
+                    @*<a href="javascript:;" onclick="getinfo(@item.Id)">在职</a>*@
+                }
+            </li>
+            <li style="width:5%; float:left; text-align:right">
+                <a href="javascript:;" onclick="getinfo(@item.Id)"><img src="~/Content/png/edit_48.png" style="width:18px; height:18px;" /></a>
+            </li>
+            <li style="width:10%; float:left; text-align:center">
                 @Html.DisplayFor(modelItem => item.Name)
             </li>
             <li style="width:15%; float:left; text-align:center">
@@ -126,22 +144,12 @@
             <li style="width:15%; float:left; text-align:center">
                 @if (item.SPName == "")
                 {
-                    <label style="width:15%; visibility:hidden">顶级</label>
+                    <label style="width:15%; visibility:hidden;">天林教育</label>
                 }
                 @Html.DisplayFor(modelItem => item.SPName)
             </li>
             <li style="width:20%; float:left; text-align:center">
-                @Html.DisplayFor(modelItem => item.LoginNname)
-            </li>
-            <li style="width:10%; float:left; text-align:left">
-                @if (item.IsOnJob)
-                {
-                    <a href="javascript:;" onclick="getinfo(@item.Id)">离职</a>
-                }
-                else if (!item.IsOnJob)
-                {
-                    <a href="javascript:;" onclick="getinfo(@item.Id)">在职</a>
-                }
+                @Html.DisplayFor(modelItem => item.LoginName)
             </li>
         </ul>
     }
