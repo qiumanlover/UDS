@@ -1,0 +1,148 @@
+﻿@model IEnumerable<UDS.Models.EmployeeUser>
+
+<script type="text/javascript">
+    function check() {
+        var name = $("input#name").val();
+        if (name == null || name == "") {
+            alert("姓名不能为空");
+            return false;
+        }
+        var loginname = $("input#loginname").val();
+        if (loginname == null || loginname == "") {
+            alert("登录名不能为空");
+            return false;
+        }
+        return true;
+    }
+    function reset() {
+        $("input#id").val("0");
+        $("select#pid").val("1");
+        $("select#did").val("1");
+        $("select#spid").val("1");
+        $("input#loginname").val("");
+        $("select#userlevel").val("1");
+        $("input#submit").val("增加");
+    }
+    function getinfo(id) {
+        ajaxPost("/Administrator/EmployeeUserGetInfo", "id=" + id, function onsuccess(text) {
+            var data = $.parseJSON(text);
+            $("input#id").val(data.id);
+            $("select#pid").val(data.pid);
+            $("select#did").val(data.did);
+            $("select#spid").val(data.spid);
+            $("input#loginname").val(data.loginname);
+            $("select#userlevel").val(data.userlevel);
+            $("input#submit").val("保存");
+        }, function onfail(text) {
+        })
+    }
+</script>
+
+@using (Ajax.BeginForm("EmployeeUserProc", new AjaxOptions() { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "replace" }))
+{
+    <ul style="list-style:none; min-width:1024px; width:100%;">
+        <li style="float:left;">
+            <input type="text" hidden="hidden" style="visibility:hidden" value="0" name="id" id="id" />
+        </li>
+        <li style="float:left;width:12%;text-align:center;">
+            姓名：<input type="text" name="name" id="name" style="width:80px;height:22px;" />
+        </li>
+        <li style="float:left; width:15%;text-align:center;">
+            职位：
+            <select id="pid" name="pid" style="height: 22px;">
+                @{
+    var poslist = ViewData["typelist"] as List<SelectListItem>;
+    foreach (var item in poslist)
+    {
+        <option value="@item.Value">@item.Text</option>
+    }
+                }
+            </select>
+        </li>
+        <li style="float:left; width:10%;text-align:center;">
+            部门：
+            <select id="did" name="did" style="height: 22px;">
+                @{
+    var dlist = ViewData["dtypelist"] as List<SelectListItem>;
+    foreach (var item in dlist)
+    {
+        <option value="@item.Value">@item.Text</option>
+    }
+                }
+            </select>
+        </li>
+        <li style="float:left; width:20%;text-align:center;">
+            上级职位：
+            <select id="spid" name="spid" style="height: 22px;">
+                @{
+    foreach (var item in poslist)
+    {
+        <option value="@item.Value">@item.Text</option>
+    }
+                }
+            </select>
+        </li>
+        <li style="float:left;width:15%;text-align:right;">
+            登录名：<input type="text" name="loginname" id="loginname" style="width:100px; height:22px;" />
+        </li>
+        <li style="float:left; width:10%;text-align:center;">
+            等级：
+            <select id="userlevel" name="userlevel" style="height: 22px;">
+                <option value="1">主任</option>
+                <option value="2">主管</option>
+                <option value="3">普通职员</option>
+            </select>
+        </li>
+        <li style="float:left;width:15%;text-align:left;">
+            <input type="submit" name="submit" id="submit" value="增加" style="width:60px;height:23px;" onclick="return check()" />
+            <input type="submit" value="取消" style="width:60px;height:25px;" onclick="reset()" />
+        </li>
+    </ul>
+}
+<hr style="clear:both;" />
+<br />
+<div>
+    <ul style="width:100%; min-width:1024px;">
+        <li style="width:20%; float:left; text-align:center">姓名</li>
+        <li style="width:15%; float:left; text-align:center">职位</li>
+        <li style="width:10%; float:left; text-align:center">部门</li>
+        <li style="width:15%; float:left; text-align:center">上级职位</li>
+        <li style="width:20%; float:left; text-align:center">登录名</li>
+        <li style="width:10%; float:left; text-align:left"></li>
+        <li style="width:10%; float:left; text-align:left"></li>
+    </ul>
+    @foreach (var item in Model)
+    {
+        <ul style="clear:both;width:100%;min-width:1024px;">
+            <li style="width:20%; float:left; text-align:center">
+                @Html.DisplayFor(modelItem => item.Name)
+            </li>
+            <li style="width:15%; float:left; text-align:center">
+                @Html.DisplayFor(modelItem => item.PName)
+            </li>
+            <li style="width:10%; float:left; text-align:center">
+                @Html.DisplayFor(modelItem => item.DName)
+            </li>
+            <li style="width:15%; float:left; text-align:center">
+                @if (item.SPName == "")
+                {
+                    <label style="width:15%; visibility:hidden">顶级</label>
+                }
+                @Html.DisplayFor(modelItem => item.SPName)
+            </li>
+            <li style="width:20%; float:left; text-align:center">
+                @Html.DisplayFor(modelItem => item.LoginNname)
+            </li>
+            <li style="width:10%; float:left; text-align:left">
+                @if (item.IsOnJob)
+                {
+                    <a href="javascript:;" onclick="getinfo(@item.Id)">离职</a>
+                }
+                else if (!item.IsOnJob)
+                {
+                    <a href="javascript:;" onclick="getinfo(@item.Id)">在职</a>
+                }
+            </li>
+        </ul>
+    }
+</div>

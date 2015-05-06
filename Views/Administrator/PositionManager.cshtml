@@ -1,0 +1,79 @@
+﻿@model IEnumerable<UDS.Models.Position>
+<script type="text/javascript">
+    function check() {
+        var pname = $("input#PName").val();
+        if (pname == null || pname == "") {
+            alert("职位名称不能为空");
+            return false;
+        }
+        return true;
+    }
+    function reset() {
+        $("input#Id").val("0");
+        $("input#PName").val("");
+        $("select#EId").val("0");
+        $("input#submit").val("增加");
+    }
+    function getinfo(id) {
+        ajaxPost("/Administrator/PositionGetInfo", "id=" + id, function onsuccess(text) {
+            var data = $.parseJSON(text);
+            $("input#Id").val(data.id);
+            $("input#PName").val(data.pname);
+            $("select#EId").val(data.eid);
+            $("input#submit").val("保存");
+        }, function onfail (text) {
+        })
+    }
+</script>
+
+@using (Ajax.BeginForm("PositionProc", new AjaxOptions() { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "replace" }))
+{
+    <ul style="list-style:none; min-width:680px; width:100%;">
+        <li style="float:left;">
+            <input type="text" hidden="hidden" style="visibility:hidden" value="0" name="Id" id="Id" />
+        </li>
+        <li style="float:left;width:40%;text-align:right;">
+            职位名称：<input type="text" name="PName" id="PName" />
+        </li>
+        <li style="float:left; width:20%;text-align:center;">
+            负责人：
+            <select id="EId" name="EId">
+                @{
+    var employeelist = ViewData["typelist"] as List<SelectListItem>;
+    foreach (var item in employeelist)
+    {
+        <option value="@item.Value">@item.Text</option>
+    }
+                }
+            </select>
+        </li>
+        <li style="float:left;width:40%;text-align:left;">
+            <input type="submit" name="submit" id="submit" value="增加" style="width:60px;height:25px;" onclick="return check()" />
+            <input type="submit" value="取消" style="width:60px;height:25px;" onclick="reset()" />
+        </li>
+    </ul>
+}
+<hr style="clear:both;" />
+<br />
+<div>
+    <ul style="width:100%; min-width:670px;">
+        <li style="width:40%; float:left; text-align:center">职位名称</li>
+        <li style="width:20%; float:left; text-align:center">负责人</li>
+        <li style="width:40%; float:left; text-align:left"></li>
+    </ul>
+    @foreach (var item in Model)
+    {
+        <ul style="clear:both;width:100%;min-width:670px;">
+            <li style="width:40%; float:left; text-align:center">
+                @Html.DisplayFor(modelItem => item.PName)
+            </li>
+            <li style="width:20%; float:left; text-align:center">
+                @Html.DisplayFor(modelItem => item.EName)
+            </li>
+            <li style="width:40%; float:left; text-align:left">
+                <a href="javascript:;" onclick="getinfo(@item.Id)"><img src="~/Content/png/edit_48.png" style="width:18px; height:18px;" /></a>
+            </li>
+        </ul>
+    }
+</div>
+

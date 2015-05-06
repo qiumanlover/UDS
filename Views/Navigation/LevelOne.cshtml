@@ -1,0 +1,30 @@
+﻿<nav class="nav">
+    <ul class="nav__menu">
+        <li class="nav__menu-item">
+            @Ajax.ActionLink("待批阅", "NextSignList", "List", new { pageindex = 1 }, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" }, new { id = "fevent" })
+        </li>
+        <li class="nav__menu-item">
+            @Ajax.ActionLink("已批阅", "RecordSignList", "List", new { pageindex = 1 }, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+        </li>
+        <li class="nav__menu-item">
+            @Ajax.ActionLink("修改密码", "ModifyPass", "Login", new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+        </li>
+        <li class="nav__menu-item">
+            <a>代理</a>
+            <ul class="nav__submenu">
+                <li class="nav__submenu-item">
+                    @Ajax.ActionLink("代理签核", "AgentSign", "Agent", new { pageindex = 1 }, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+                </li>
+                <li class="nav__submenu-item">
+                    @Ajax.ActionLink("代理历史", "AgentHistory", "Agent", new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+                </li>
+                <li class="nav__submenu-item">
+                    @Ajax.ActionLink("我的授权", "AgentConfig", "Agent", new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+                </li>
+                <li class="nav__submenu-item">
+                    @Ajax.ActionLink("添加授权", "AgentAdd", "Agent", new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+                </li>
+            </ul>
+        </li>
+    </ul>
+</nav>

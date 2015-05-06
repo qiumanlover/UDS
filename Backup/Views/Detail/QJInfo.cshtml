@@ -1,0 +1,71 @@
+﻿@model UDS.Models.QJInfo
+
+<script type="text/javascript">
+    function qjtotaltime() {
+        var hourpreday = Number($("#hourpreday").text().toString());
+        var beginworkhour = Number($("#beginworkhour").text().toString());
+        var beginworkmin = Number($("#beginworkmin").text().toString());
+        var endworkhour = Number($("#endworkhour").text().toString());
+        var endworkmin = Number($("#endworkmin").text().toString());
+
+        var begintime = new Date($("#BeginTime").val().toString().replace(/-/g, "/"));
+        var beginminseconds = Date.parse(begintime);
+        var endtime = new Date($("#EndTime").val().toString().replace(/-/g, "/"));
+        var endminseconds = Date.parse(endtime);
+        var totaltime = endminseconds - beginminseconds;
+        var dayhours = (Math.floor(totaltime / (1000 * 3600 * 24)) - 1) * hourpreday;
+
+        begintime.setHours(endworkhour, endworkmin, 0);
+        var lastworkminseconds = Date.parse(begintime);
+        endtime.setHours(beginworkhour, beginworkmin, 0);
+        var beginworkminseconds = Date.parse(endtime);
+        var timeb = (lastworkminseconds - beginminseconds) * 1.0 / (1000 * 3600);
+        var timee = (endminseconds - beginworkminseconds) * 1.0 / (1000 * 3600);
+        var lefthours = timeb + timee;
+        var time = dayhours + lefthours;
+        $("#TotalTime").val(time.toFixed(2));
+    }
+</script>
+@using (Ajax.BeginForm("QJInfo", new { id = ViewBag.Id, isOld = ViewBag.Old }, new AjaxOptions() { UpdateTargetId = "replace", HttpMethod = "Post", InsertionMode = InsertionMode.Replace }))
+{
+    <ul id="title">
+        <li>开始时间：</li>
+        <li>结束时间：</li>
+        <li>总时长：</li>
+        <li>请假缘由：</li>
+        <li>请假类别：</li>
+    </ul>
+
+    <ul id="input">
+        <li>
+            @Html.TextBoxFor(model => model.BeginTime, new { onclick = "laydate({ istime: true, min : laydate.now(" + ViewBag.Before + "), format: 'YYYY-MM-DD hh:mm', start : laydate.now() })", placeholder = "YYYY-MM-DD hh:mm", Class = "laydate-icon-molv", value = DateTime.Now.ToString(), style = "width:150px;" })
+            @Html.ValidationMessageFor(model => model.BeginTime)
+        </li>
+        <li>
+            @Html.TextBoxFor(model => model.EndTime, new { onclick = "laydate({ istime: true, min : laydate.now(), format: 'YYYY-MM-DD hh:mm', start : laydate.now() })", placeholder = "YYYY-MM-DD hh:mm", Class = "laydate-icon-molv", value = DateTime.Now.ToString(), style = "width:150px;" })
+            @Html.ValidationMessageFor(model => model.EndTime)
+        </li>
+        <li>
+            @Html.TextBoxFor(model => model.TotalTime, new { onclick = "qjtotaltime()" })
+            @Html.ValidationMessageFor(model => model.TotalTime)
+        </li>
+        <li>
+            @Html.TextBoxFor(model => model.Reason)
+            @Html.ValidationMessageFor(model => model.Reason)
+        </li>
+        <li>
+            @Html.DropDownListFor(model => model.TypeId, ViewData["typelist"] as List<SelectListItem>)
+        </li>
+    </ul>
+
+    if (ViewBag.Display == 1)
+    {
+        <div id="btnContainer">
+            <input type="submit" value="保存" id="save" name="save" onclick="qjtotaltime()" />
+            <input type="submit" value="发送" id="send" name="send" onclick="qjtotaltime()" />
+        </div>
+        <span id="beginworkhour" hidden>@ViewBag.BeginWorkHour</span><span id="beginworkmin" hidden>@ViewBag.BeginWorkMin</span>
+        <span id="endworkhour" hidden>@ViewBag.EndWorkHour</span><span id="endworkmin" hidden>@ViewBag.EndWorkMin</span>
+        <span id="hourpreday" hidden>@ViewBag.HourPreDay</span>
+    }
+}
