@@ -146,6 +146,7 @@
     <Compile Include="Models\Department.cs" />
     <Compile Include="Models\EmployeeUser.cs" />
     <Compile Include="Models\FilterableClientDataTypeModelValidatorProvider.cs" />
+    <Compile Include="Models\Flow.cs" />
     <Compile Include="Models\GDZCInfo.cs" />
     <Compile Include="Models\HYJLInfo.cs" />
     <Compile Include="Models\ISQLModel.cs" />

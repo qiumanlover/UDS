@@ -15,7 +15,7 @@ namespace UDS.Models
 
         public Flow() { }
 
-        public Flow()
+        public Flow(string formname)
         {
 
         }

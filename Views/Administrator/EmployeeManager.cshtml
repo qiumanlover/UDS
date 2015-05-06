@@ -14,8 +14,9 @@
         }
         return true;
     }
-    function reset() {
+    function ereset() {
         $("input#id").val("0");
+        $("input#name").val("");
         $("select#pid").val("1");
         $("select#did").val("1");
         $("select#spid").val("1");
@@ -98,7 +99,7 @@
         </li>
         <li style="float:left;width:15%;text-align:left;">
             <input type="submit" name="submit" id="submit" value="增加" style="width:60px;height:23px;" onclick="return check()" />
-            <input type="submit" value="取消" style="width:60px;height:25px;" onclick="return reset()" />
+            <input type="submit" value="取消" style="width:60px;height:25px;" onclick="return ereset()" />
         </li>
     </ul>
 }

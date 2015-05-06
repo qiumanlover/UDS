@@ -9,11 +9,12 @@
         }
         return true;
     }
-    function reset() {
+    function dreset() {
         $("input#Id").val("0");
         $("input#DName").val("");
         $("select#PId").val("0");
         $("input#submit").val("增加");
+        return false;
     }
     function getinfo(id) {
         ajaxPost("/Administrator/DepartmentGetInfo", "id=" + id, function onsuccess(text) {
@@ -50,7 +51,7 @@
         </li>
         <li style="float:left;width:40%;text-align:left;">
             <input type="submit" name="submit" id="submit" value="增加" style="width:60px;height:25px;" onclick="return check()" />
-            <input type="submit" value="取消" style="width:60px;height:25px;" onclick="reset()" />
+            <input type="submit" value="取消" style="width:60px;height:25px;" onclick="return dreset()" />
         </li>
     </ul>
 }
