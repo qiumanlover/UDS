@@ -39,22 +39,32 @@ namespace UDS.Controllers
                 case 1:
                     ViewBag.ActionName = "NextSignList";
                     ViewBag.ControllerName = "List";
+                    ViewData["paras"] = Request["paras"];
                     break;
                 case 2:
                     ViewBag.ActionName = "OwnApplyList";
                     ViewBag.ControllerName = "List";
+                    ViewData["paras"] = Request["paras"];
                     break;
                 case 3:
                     ViewBag.ActionName = "RecordSignList";
                     ViewBag.ControllerName = "List";
+                    ViewData["paras"] = Request["paras"];
                     break;
                 case 4:
                     ViewBag.ActionName = "AgentSign";
                     ViewBag.ControllerName = "Agent";
+                    ViewData["paras"] = Request["paras"];
+                    break;
+                case 5:
+                    ViewBag.ActionName = "FormQuery";
+                    ViewBag.ControllerName = "Administrator";
+                    ViewData["paras"] = Request["paras"];
                     break;
                 default:
                     ViewBag.ActionName = "OwnApplyList";
                     ViewBag.ControllerName = "List";
+                    ViewData["paras"] = Request["paras"];
                     break;
             }
             ViewBag.BackId = backid;
@@ -80,6 +90,7 @@ namespace UDS.Controllers
             ViewBag.Show = show;
             ViewBag.isOld = isOld;
             ViewBag.Id = formflowid;
+            ViewData["paras"] = Request["paras"];
             return PartialView();
         }
 

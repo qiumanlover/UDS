@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using UDS.Models;
 
@@ -96,7 +94,92 @@ namespace UDS.Controllers
 
         public ActionResult FlowManager()
         {
+            ViewData.Model = Flow.GetList();
+            ViewData["typelist"] = Flow.GetSelector();
             return PartialView();
+        }
+
+        public JsonResult FlowGetInfo(int id)
+        {
+            Flow flow = Flow.GetInfoById(id);
+            object obj = new { id = flow.Id, formname = flow.FormName, templateid = flow.TemplateId, flowflow = flow.FlowFlow };
+            return Json(obj, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult FlowProc(int id, string formname, int templateid, string flowflow)
+        {
+            if (id == 0)
+            {
+                Flow.AddInfo(new Flow(formname, templateid, flowflow));
+            }
+            else
+            {
+                Flow.UpdateInfo(new Flow(id, formname, templateid, flowflow));
+            }
+            return RedirectToAction("FlowManager");
+        }
+
+        public ActionResult FormQuery()
+        {
+            ViewData["ftypelist"] = FormFlow.GetFSelector();
+            ViewData["etypelist"] = FormFlow.GetESelector();
+            if (Request["pageindex"] != null & Convert.ToInt32(Request["pageindex"]) != 0)
+            {
+                int pageindex = Convert.ToInt32(Request["pageindex"]);
+                int eid = Convert.ToInt32(Request["eid"]);
+                int formid = Convert.ToInt32(Request["formid"]);
+                DateTime begintime = Convert.ToDateTime(Request["begintime"]);
+                DateTime endtime = Convert.ToDateTime(Request["endtime"]);
+                int pagecount;
+                List<FormFlow> data = FormFlow.GetList(eid, formid, begintime, endtime, pageindex, 20, out pagecount);
+                ViewData.Model = data;
+                ViewBag.pageCount = pagecount;
+                ViewBag.pageIndex = pagecount == 0 ? 0 : pageindex;
+                ViewBag.frtIndex = pagecount == 0 ? 0 : 1;
+                ViewBag.preIndex = pagecount == 0 ? 0 : (pageindex == 1 ? 1 : pageindex - 1);
+                ViewBag.nxtIndex = pagecount == 0 ? 0 : (pageindex == pagecount ? pageindex : pageindex + 1);
+                ViewBag.beginTime = begintime.ToString("yyyy-MM-dd hh:mm");
+                ViewBag.endTime = endtime.ToString("yyyy-MM-dd hh:mm");
+                ViewBag.eid = eid;
+                ViewBag.formid = formid;
+                ViewData["paras"] = string.Format("pageindex={0},eid={1},formid={2},begintime={3},endtime={4}", pageindex, eid, formid, begintime.ToString("yyyy-MM-dd hh:mm"), endtime.ToString("yyyy-MM-dd hh:mm"));
+            }
+            else
+            {
+                ViewData.Model = new List<FormFlow>();
+                ViewBag.pageCount = 0;
+                ViewBag.pageIndex = 0;
+                ViewBag.frtIndex = 0;
+                ViewBag.preIndex = 0;
+                ViewBag.nxtIndex = 0;
+                ViewBag.beginTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm");
+                ViewBag.endTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm");
+            }
+            return PartialView();
+        }
+
+        public ActionResult ForcePassword()
+        {
+            ViewData.Model = SysUser.GetList();
+            return PartialView();
+        }
+
+        public ActionResult UserDelMng(int id)
+        {
+            SysUser.StopAccount(id);
+            return RedirectToAction("ForcePassword");
+        }
+
+        public JavaScriptResult UserReset(int id, string loginname)
+        {
+            SysUser.ResetPass(id);
+            return JavaScript(string.Format("alert('账号：{0} 的密码已重置')", loginname));
+        }
+
+        public ActionResult SysUserAdd(string loginname)
+        {
+            SysUser.AddAdministrator(loginname);
+            return RedirectToAction("ForcePassword");
         }
     }
 }

@@ -3,11 +3,19 @@
     <title></title>
     @{
         string pageName = ViewBag.PageName;
-    }
+        string parastr = ViewData["paras"].ToString();
+        string[] parastrs = parastr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+        RouteValueDictionary paras = new RouteValueDictionary();
+        foreach (string item in parastrs)
+        {
+            string[] items = item.Split(new string[] { "=" }, StringSplitOptions.RemoveEmptyEntries);
+            paras.Add(items[0], items[1]);
+        }
+}
 </head>
 <body>
     <div style="float:left">
-        @Ajax.ActionLink("返回", "OwnDraftList", "List", new { pageindex = 1 }, new AjaxOptions() { UpdateTargetId = "replace ", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+        @Ajax.ActionLink("返回", "OwnDraftList", "List", paras, new AjaxOptions() { UpdateTargetId = "replace ", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
     </div>
     <div style="width:100%">
         @Html.Action(pageName, new { innerid = ViewBag.InnerId, show = ViewBag.Show, id = ViewBag.Id, isOld = ViewBag.isOld })

@@ -16,7 +16,7 @@ namespace UDS.Controllers
         {
             User user = Session["user"] as User;
             int userlevel = user.Userlevel;
-            ViewBag.userName = user.Ename;
+            ViewBag.userName = user.Ename == "" ? "管理员" : user.Ename;
             ViewBag.id = user.Eid.ToString();
             ViewBag.guid = Session[user.Eid.ToString()].ToString();
             switch (userlevel)
