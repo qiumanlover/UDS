@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Web;
 
 namespace UDS.Models
 {
@@ -14,23 +13,15 @@ namespace UDS.Models
         public string EName { get; set; }
         public int UserLevel { get; set; }
         public bool IsDelete { get; set; }
-        public SysUser() { }
 
         internal static List<SysUser> GetList()
         {
             DataTable dt = SQLHelper.ProcDataTable("usp_SysUser");
-            List<SysUser> userList = new List<SysUser>();
-            foreach (DataRow row in dt.Rows)
-            {
-                SysUser info = new SysUser();
-                info.Id = Convert.ToInt32(row["id"]);
-                info.EName = row["ename"].ToString();
-                info.LoginName = row["loginname"].ToString();
-                info.UserLevel = Convert.ToInt32(row["userlevel"]);
-                info.IsDelete = Convert.ToBoolean(row["isdelete"]);
-                userList.Add(info);
-            }
-            return userList;
+            return (from DataRow row in dt.Rows
+                select new SysUser
+                {
+                    Id = Convert.ToInt32(row["id"]), EName = row["ename"].ToString(), LoginName = row["loginname"].ToString(), UserLevel = Convert.ToInt32(row["userlevel"]), IsDelete = Convert.ToBoolean(row["isdelete"])
+                }).ToList();
         }
 
         internal static int StopAccount(int id)

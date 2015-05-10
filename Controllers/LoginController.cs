@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace UDS.Controllers
@@ -27,7 +24,7 @@ namespace UDS.Controllers
                 Session["user"] = user;
                 Guid guid = Guid.NewGuid();
                 Session[user.Eid.ToString()] = guid.ToString();
-                UDS.Models.GlobeLoad.Load(user.Eid.ToString(), guid.ToString());
+                Models.GlobeLoad.Load(user.Eid.ToString(), guid.ToString());
                 return RedirectToAction("UserPage", "Navigation");
             }
             else
@@ -46,6 +43,7 @@ namespace UDS.Controllers
                         ViewBag.Msg = "密码错误";
                         break;
                     default:
+                        ViewBag.Msg = "Error";
                         break;
                 }
                 return View("Index");
@@ -67,7 +65,7 @@ namespace UDS.Controllers
             string uniid = Request["guid"];
             if (!string.IsNullOrEmpty(name) && Session != null)
             {
-                if (!UDS.Models.GlobeLoad.CheckLoad(name, uniid))
+                if (!Models.GlobeLoad.CheckLoad(name, uniid))
                 {
                     //return View();
                     //return Content(@"<script type='text/javascript'>alert('当前账号在其他地方登录, 请重新登录!');self.location.href = '/Login/Index';</script>");
@@ -90,10 +88,10 @@ namespace UDS.Controllers
             if (Request["submit"] != null)
             {
                 User user = Session["user"] as User;
-                string curpass = Request["curpass"].ToString();
-                if (user.Password.Equals(curpass))
+                string curpass = Request["curpass"];
+                if (user != null && user.Password.Equals(curpass))
                 {
-                    user.UpdatePass(Request["newpass"].ToString());
+                    user.UpdatePass(Request["newpass"]);
                     Session.Clear();
                     return Content("<script type='text/javascript'>alert('密码修改成功, 请重新登录!');self.location.href = '/Login/Index';</script>");
                 }

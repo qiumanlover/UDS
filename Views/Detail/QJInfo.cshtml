@@ -26,7 +26,7 @@
         $("#TotalTime").val(time.toFixed(2));
     }
 </script>
-@using (Ajax.BeginForm("QJInfo", new { id = ViewBag.Id, isOld = ViewBag.Old }, new AjaxOptions() { UpdateTargetId = "replace", HttpMethod = "Post", InsertionMode = InsertionMode.Replace }))
+@using (Ajax.BeginForm("QjInfo", new { id = ViewBag.Id, isOld = ViewBag.Old }, new AjaxOptions() { UpdateTargetId = "replace", HttpMethod = "Post", InsertionMode = InsertionMode.Replace }))
 {
     <ul id="title">
         <li>开始时间：</li>

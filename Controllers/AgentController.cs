@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using UDS.Models;
 
@@ -16,46 +14,54 @@ namespace UDS.Controllers
 
         public ActionResult AgentConfig()
         {
-            int eid = (Session["user"] as User).Eid;
-            DataTable dt = SQLHelper.ProcDataTable("usp_Grantor", new SqlParameter("@id", eid));
-            DataColumnCollection columns = dt.Columns;
-            List<AgencyList> data = new List<AgencyList>();
-            foreach (DataRow row in dt.Rows)
+            User user = Session["user"] as User;
+            if (user != null)
             {
-                AgencyList info = new AgencyList();
-                info = info.DBDataToAgency(row, columns);
-                data.Add(info);
+                int eid = user.Eid;
+                DataTable dt = SQLHelper.ProcDataTable("usp_Grantor", new SqlParameter("@id", eid));
+                DataColumnCollection columns = dt.Columns;
+                List<AgencyList> data = new List<AgencyList>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    AgencyList info = new AgencyList();
+                    info = info.DbDataToAgency(row, columns);
+                    data.Add(info);
+                }
+                ViewData.Model = data;
             }
-            ViewData.Model = data;
             return PartialView();
         }
 
         public ActionResult AgentSign()
         {
-            int eid = (Session["user"] as User).Eid;
-            DataTable dt = SQLHelper.ProcDataTable("usp_GrantorIds", new SqlParameter("@id", eid));
-            List<int> idlist = new List<int>();
-            foreach (DataRow row in dt.Rows)
+            User user = Session["user"] as User;
+            if (user != null)
             {
-                idlist.Add(Convert.ToInt32(row["grantorid"]));
+                int eid = user.Eid;
+                DataTable dt = SQLHelper.ProcDataTable("usp_GrantorIds", new SqlParameter("@id", eid));
+                List<int> idlist = new List<int>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    idlist.Add(Convert.ToInt32(row["grantorid"]));
+                }
+                string eids = String.Join(",", idlist.ToArray());
+                int pagecount;
+                int pageindex = int.Parse(Request["pageindex"]);
+                if (pageindex < 1) pageindex = 1;
+                List<InfoList> data = GetInfoListFromDb("usp_AgentSign", eids, pageindex, 20, out pagecount);
+                if (pageindex > pagecount)
+                {
+                    pageindex = pagecount;
+                    data = GetInfoListFromDb("usp_AgentSign", eids, pageindex, 20, out pagecount);
+                }
+                ViewData.Model = data;
+                ViewBag.pageCount = pagecount;
+                ViewBag.pageIndex = pageindex;
             }
-            string eids = String.Join(",", idlist.ToArray());
-            int pagecount;
-            int pageindex = int.Parse(Request["pageindex"]);
-            if (pageindex < 1) pageindex = 1;
-            List<InfoList> data = GetInfoListFromDB("usp_AgentSign", eids, pageindex, 20, out pagecount);
-            if (pageindex > pagecount)
-            {
-                pageindex = pagecount;
-                data = GetInfoListFromDB("usp_AgentSign", eids, pageindex, 20, out pagecount);
-            }
-            ViewData.Model = data;
-            ViewBag.pageCount = pagecount;
-            ViewBag.pageIndex = pageindex;
             return PartialView();
         }
 
-        private static List<InfoList> GetInfoListFromDB(string procname, string eids, int pageindex, int pagesize, out int pagecount)
+        private static List<InfoList> GetInfoListFromDb(string procname, string eids, int pageindex, int pagesize, out int pagecount)
         {
             SqlParameter[] parameters = { new SqlParameter("@pageIndex", SqlDbType.Int), new SqlParameter("@pageSize", SqlDbType.Int), new SqlParameter("@pageCount", SqlDbType.Int), new SqlParameter("@Temp_Array", SqlDbType.VarChar) };
             parameters[0].Value = pageindex;
@@ -77,17 +83,21 @@ namespace UDS.Controllers
 
         public ActionResult AgentHistory()
         {
-            int eid = (Session["user"] as User).Eid;
-            DataTable dt = SQLHelper.ProcDataTable("usp_Agent", new SqlParameter("@id", eid));
-            DataColumnCollection columns = dt.Columns;
-            List<AgencyList> data = new List<AgencyList>();
-            foreach (DataRow row in dt.Rows)
+            var user = Session["user"] as User;
+            if (user != null)
             {
-                AgencyList info = new AgencyList();
-                info = info.DBDataToAgency(row, columns);
-                data.Add(info);
+                int eid = user.Eid;
+                DataTable dt = SQLHelper.ProcDataTable("usp_Agent", new SqlParameter("@id", eid));
+                DataColumnCollection columns = dt.Columns;
+                List<AgencyList> data = new List<AgencyList>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    AgencyList info = new AgencyList();
+                    info = info.DbDataToAgency(row, columns);
+                    data.Add(info);
+                }
+                ViewData.Model = data;
             }
-            ViewData.Model = data;
             return PartialView();
         }
 
@@ -108,7 +118,8 @@ namespace UDS.Controllers
             ViewData["typelist"] = typeList;
             if (Request["save"] != null)
             {
-                agency.GrantorId = (Session["user"] as User).Eid;
+                var user = Session["user"] as User;
+                if (user != null) agency.GrantorId = user.Eid;
                 AgencyList.AddInfo(agency);
                 return RedirectToAction("AgentConfig");
             }

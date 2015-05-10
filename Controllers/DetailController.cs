@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using UDS.Models;
 
@@ -28,7 +27,7 @@ namespace UDS.Controllers
             ViewBag.show = show;
             DataTable dtBaseInfo = SQLHelper.ProcDataTable("usp_BaseInfo", new SqlParameter("@id", id));
             BaseInfo baseinfo = new BaseInfo();
-            ViewBag.BaseInfo = baseinfo.DBToObject(dtBaseInfo);
+            ViewBag.BaseInfo = baseinfo.DbToObject(dtBaseInfo);
             DataTable dtSignInfo = SQLHelper.ProcDataTable("usp_ExamInfo", new SqlParameter("@id", id));
             ViewBag.SignInfoList = SignInfo.DBToObject(dtSignInfo);
             ViewBag.Id = id;
@@ -98,30 +97,34 @@ namespace UDS.Controllers
         {
             int formflowid = Convert.ToInt32(Request["id"]);
             int backid = Convert.ToInt32(Request["backid"]);
-            int eid = (Session["user"] as User).Eid;
-            string reason = Request["reason"];
-            if (Request["agree"] != null && Request["disagree"] == null)
+            User user = Session["user"] as User;
+            if (user != null)
             {
-                DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
-                string nextid = preSign.Rows[0]["nextstep"].ToString();
-                List<string> signlist = new List<string>(preSign.Rows[0]["signposlist"].ToString().Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries));
-                int index = signlist.IndexOf(nextid) + 1;
-                nextid = signlist.ElementAt(index);
-                string lastid = signlist.ElementAt(signlist.Count - 1);
-                if (nextid.Equals(lastid))
+                int eid = user.Eid;
+                string reason = Request["reason"];
+                if (Request["agree"] != null && Request["disagree"] == null)
                 {
-                    SQLHelper.ProcNoQuery("usp_SignSuccess", new SqlParameter("@nextstep", nextid), new SqlParameter("@id", formflowid));
+                    DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
+                    string nextid = preSign.Rows[0]["nextstep"].ToString();
+                    List<string> signlist = new List<string>(preSign.Rows[0]["signposlist"].ToString().Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries));
+                    int index = signlist.IndexOf(nextid) + 1;
+                    nextid = signlist.ElementAt(index);
+                    string lastid = signlist.ElementAt(signlist.Count - 1);
+                    if (nextid.Equals(lastid))
+                    {
+                        SQLHelper.ProcNoQuery("usp_SignSuccess", new SqlParameter("@nextstep", nextid), new SqlParameter("@id", formflowid));
+                    }
+                    else
+                    {
+                        SQLHelper.ProcNoQuery("usp_SignNext", new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
+                    }
+                    SQLHelper.ProcNoQuery("usp_SignAgreeInfo", new SqlParameter("formflowid", formflowid), new SqlParameter("@eid", eid), new SqlParameter("time", DateTime.Now), new SqlParameter("reason", reason));
                 }
-                else
+                else if (Request["agree"] == null && Request["disagree"] != null)
                 {
-                    SQLHelper.ProcNoQuery("usp_SignNext", new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
+                    SQLHelper.ProcNoQuery("usp_SignFail", new SqlParameter("id", formflowid));
+                    SQLHelper.ProcNoQuery("usp_SignRefuseInfo", new SqlParameter("formflowid", formflowid), new SqlParameter("@eid", eid), new SqlParameter("time", DateTime.Now), new SqlParameter("reason", reason));
                 }
-                SQLHelper.ProcNoQuery("usp_SignAgreeInfo", new SqlParameter("formflowid", formflowid), new SqlParameter("@eid", eid), new SqlParameter("time", DateTime.Now), new SqlParameter("reason", reason));
-            }
-            else if (Request["agree"] == null && Request["disagree"] != null)
-            {
-                SQLHelper.ProcNoQuery("usp_SignFail", new SqlParameter("id", formflowid));
-                SQLHelper.ProcNoQuery("usp_SignRefuseInfo", new SqlParameter("formflowid", formflowid), new SqlParameter("@eid", eid), new SqlParameter("time", DateTime.Now), new SqlParameter("reason", reason));
             }
             if (backid == 4)
             {
@@ -161,12 +164,12 @@ namespace UDS.Controllers
             List<string> signlist = new List<string>();
             DataTable dt = SQLHelper.ProcDataTable("usp_WriteDetail", new SqlParameter("@id", flowid));
             string flow = dt.Rows[0]["flow"].ToString();
-            string[] flowlist = flow.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-            int temp;
+            string[] flowlist = flow.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
             dt = SQLHelper.ProcDataTable("usp_PosId", new SqlParameter("@id", eid));
             string posid = dt.Rows[0]["positionid"].ToString();
             for (int i = 0; i < flowlist.Length - 1; i++)
             {
+                int temp;
                 if (int.TryParse(flowlist[i], out temp))
                 {
                     if (!signlist.Contains(flowlist[i]))
@@ -197,9 +200,9 @@ namespace UDS.Controllers
                     }
                     else
                     {
-                        List<string> tempSuper = new List<string>();
+                        var tempSuper = new List<string>();
                         int supereid = eid;
-                        string superposid = string.Empty;
+                        string superposid;
                         do
                         {
                             dt = SQLHelper.ProcDataTable("usp_SuperiorPosId", new SqlParameter("@id", supereid));
@@ -231,11 +234,12 @@ namespace UDS.Controllers
             return signlist;
         }
 
-        public ActionResult JBInfo(Dictionary<string, int> pars, JBInfo jbinfo)
+        public ActionResult JbInfo(Dictionary<string, int> pars, JBInfo jbinfo)
         {
             //初始化下拉列表的数据信息            
-            ViewData["typelist"] = UDS.Models.JBInfo.GetTypeList();
-            ViewBag.Before = -2;            //开始日期的选择范围限制
+            ViewData["typelist"] = JBInfo.GetTypeList();
+            //开始日期的选择范围限制
+            ViewBag.Before = Convert.ToInt32(FlowParameter.GetParaValueFromDb("daysbefore", 2));
             if (pars.ContainsKey("isNew"))
             {//新建表单时的空页面显示
                 ViewBag.Display = 1;
@@ -247,26 +251,30 @@ namespace UDS.Controllers
                 string isOld = Request["isOld"];
                 if (isOld.Equals("1"))
                 {//保存修改的表单的处理逻辑
-                    int formflowid = Convert.ToInt32(Request["id"]);
-                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", formflowid));
+                    int ffid = Convert.ToInt32(Request["id"]);
+                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
-                    UDS.Models.JBInfo.UpdateInfo(jbinfo, innerid);
-                    UpdateForm(formflowid);
+                    JBInfo.UpdateInfo(jbinfo, innerid);
+                    UpdateForm(ffid);
                     ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = formflowid });
+                    ViewBag.Id = ffid;
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
                 }
                 else if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
-                    int innerid = UDS.Models.JBInfo.AddInfo(jbinfo);
+                    int innerid = JBInfo.AddInfo(jbinfo);
                     int flowid = int.Parse(Request["id"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
-                    ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        ViewBag.Old = 1;
+                        ViewBag.Id = formflowid;
+                    }
                     ViewBag.Display = 1;
                     return PartialView();
                 }
@@ -276,7 +284,7 @@ namespace UDS.Controllers
                 int formflowid = Convert.ToInt32(Request["id"]);
                 DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
                 string signlist = preSign.Rows[0]["signposlist"].ToString();
-                int nextid = int.Parse(signlist.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
                 return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
@@ -285,26 +293,25 @@ namespace UDS.Controllers
             {//用于显示表单详细信息的处理逻辑
                 int innerid = pars["innerid"];
                 int show = pars["show"];
-                ViewData.Model = UDS.Models.JBInfo.GetInfoById(innerid);
+                ViewData.Model = JBInfo.GetInfoById(innerid);
                 ViewBag.Display = show;
                 return PartialView();
             }
             return PartialView();
         }
 
-        public ActionResult QJInfo(Dictionary<string, int> pars, QJInfo qjinfo)
+        public ActionResult QjInfo(Dictionary<string, int> pars, QJInfo qjinfo)
         {
             //初始化下拉列表的数据信息            
-            ViewData["typelist"] = UDS.Models.QJInfo.GetTypeList();
+            ViewData["typelist"] = QJInfo.GetTypeList();
             //开始日期的选择范围限制，该表单的参数
-            ViewBag.Before = -2;
-            ViewBag.HourPreDay = 8;
-            ViewBag.EndWorkHour = 17;
-            ViewBag.EndWorkMin = 0;
-            ViewBag.BeginWorkHour = 9;
-            ViewBag.BeginWorkMin = 0;
-            int HoursCount = 16;
-            string endPosId = "2";
+            ViewBag.Before = Convert.ToInt32(FlowParameter.GetParaValueFromDb("daysbefore", 3));
+            ViewBag.HourPreDay = Convert.ToInt32(FlowParameter.GetParaValueFromDb("hourspreday", 3));
+            ViewBag.EndWorkHour = Convert.ToInt32(FlowParameter.GetParaValueFromDb("endworkhour", 3));
+            ViewBag.EndWorkMin = Convert.ToInt32(FlowParameter.GetParaValueFromDb("endworkmin", 3));
+            ViewBag.BeginWorkHour = Convert.ToInt32(FlowParameter.GetParaValueFromDb("beginworkhour", 3));
+            ViewBag.BeginWorkMin = Convert.ToInt32(FlowParameter.GetParaValueFromDb("beginworkmin", 3));
+            string endPosId = FlowParameter.GetParaValueFromDb("endposid", 3).ToString();
 
             if (pars.ContainsKey("isNew"))
             {//新建表单时的空页面显示
@@ -314,49 +321,58 @@ namespace UDS.Controllers
             }
             else if (Request["save"] != null)
             {
+                int hoursCount = Convert.ToInt32(FlowParameter.GetParaValueFromDb("hourslimit", 3));
                 string isOld = Request["isOld"];
                 if (isOld.Equals("1"))
                 {//保存修改的表单的处理逻辑
-                    int formflowid = Convert.ToInt32(Request["id"]);
-                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", formflowid));
+                    int ffid = Convert.ToInt32(Request["id"]);
+                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
-                    UDS.Models.QJInfo.UpdateInfo(qjinfo, innerid);
+                    QJInfo.UpdateInfo(qjinfo, innerid);
                     //修改总表单中的签核步奏
                     int flowid = Convert.ToInt32(dtPreMain.Rows[0]["formid"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    if (qjinfo.TotalTime <= HoursCount)
-                        if (signposlist.Contains(endPosId))
-                        {
-                            int startIndex = signposlist.IndexOf(endPosId);
-                            int endIndex = signposlist.Count - 2;
-                            signposlist.RemoveRange(startIndex, endIndex);
-                        }
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    UpdateForm(formflowid, signlist);
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        if (qjinfo.TotalTime <= hoursCount)
+                            if (signposlist.Contains(endPosId))
+                            {
+                                int startIndex = signposlist.IndexOf(endPosId);
+                                int endIndex = signposlist.Count - 2;
+                                signposlist.RemoveRange(startIndex, endIndex);
+                            }
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        UpdateForm(ffid, signlist);
+                    }
                     ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = formflowid });
+                    ViewBag.Id = ffid;
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
                 }
-                else if (isOld.Equals("0"))
+                if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
-                    int innerid = UDS.Models.QJInfo.AddInfo(qjinfo);
+                    int innerid = QJInfo.AddInfo(qjinfo);
                     int flowid = int.Parse(Request["id"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    if (qjinfo.TotalTime <= HoursCount)
-                        if (signposlist.Contains(endPosId))
-                        {
-                            int startIndex = signposlist.IndexOf(endPosId);
-                            int endIndex = signposlist.Count - 2;
-                            signposlist.RemoveRange(startIndex, endIndex);
-                        }
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
-                    ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        if (qjinfo.TotalTime <= hoursCount)
+                            if (signposlist.Contains(endPosId))
+                            {
+                                int startIndex = signposlist.IndexOf(endPosId);
+                                int endIndex = signposlist.Count - 2;
+                                signposlist.RemoveRange(startIndex, endIndex);
+                            }
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        ViewBag.Old = 1;
+                        ViewBag.Id = formflowid;
+                    }
                     ViewBag.Display = 1;
                     return PartialView();
                 }
@@ -366,7 +382,7 @@ namespace UDS.Controllers
                 int formflowid = Convert.ToInt32(Request["id"]);
                 DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
                 string signlist = preSign.Rows[0]["signposlist"].ToString();
-                int nextid = int.Parse(signlist.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
                 return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
@@ -375,17 +391,17 @@ namespace UDS.Controllers
             {//用于显示表单详细信息的处理逻辑
                 int innerid = pars["innerid"];
                 int show = pars["show"];
-                ViewData.Model = UDS.Models.QJInfo.GetInfoById(innerid);
+                ViewData.Model = QJInfo.GetInfoById(innerid);
                 ViewBag.Display = show;
                 return PartialView();
             }
             return PartialView();
         }
 
-        public ActionResult GCInfo(Dictionary<string, int> pars, GCInfo gcinfo)
+        public ActionResult GcInfo(Dictionary<string, int> pars, GCInfo gcinfo)
         {
             //开始日期的选择范围限制
-            ViewBag.Before = -2;
+            ViewBag.Before = Convert.ToInt32(FlowParameter.GetParaValueFromDb("daysbefore", 4));
             if (pars.ContainsKey("isNew"))
             {//新建表单时的空页面显示
                 ViewBag.Display = 1;
@@ -397,26 +413,30 @@ namespace UDS.Controllers
                 string isOld = Request["isOld"];
                 if (isOld.Equals("1"))
                 {//保存修改的表单的处理逻辑
-                    int formflowid = Convert.ToInt32(Request["id"]);
-                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", formflowid));
+                    int ffid = Convert.ToInt32(Request["id"]);
+                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
-                    UDS.Models.GCInfo.UpdateInfo(gcinfo, innerid);
-                    UpdateForm(formflowid);
+                    GCInfo.UpdateInfo(gcinfo, innerid);
+                    UpdateForm(ffid);
                     ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = formflowid });
+                    ViewBag.Id = ffid;
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
                 }
-                else if (isOld.Equals("0"))
+                if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
-                    int innerid = UDS.Models.GCInfo.AddInfo(gcinfo);
+                    int innerid = GCInfo.AddInfo(gcinfo);
                     int flowid = int.Parse(Request["id"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
-                    ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        ViewBag.Old = 1;
+                        ViewBag.Id = formflowid;
+                    }
                     ViewBag.Display = 1;
                     return PartialView();
                 }
@@ -426,7 +446,7 @@ namespace UDS.Controllers
                 int formflowid = Convert.ToInt32(Request["id"]);
                 DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
                 string signlist = preSign.Rows[0]["signposlist"].ToString();
-                int nextid = int.Parse(signlist.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
                 return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
@@ -435,7 +455,7 @@ namespace UDS.Controllers
             {//用于显示表单详细信息的处理逻辑
                 int innerid = pars["innerid"];
                 int show = pars["show"];
-                ViewData.Model = UDS.Models.GCInfo.GetInfoById(innerid);
+                ViewData.Model = GCInfo.GetInfoById(innerid);
                 ViewBag.Display = show;
                 return PartialView();
             }
@@ -443,14 +463,9 @@ namespace UDS.Controllers
         }
 
         [ValidateInput(false)]
-        public ActionResult FYBXInfo(Dictionary<string, int> pars, FYBXInfo fybxinfo)
+        public ActionResult FybxInfo(Dictionary<string, int> pars, FYBXInfo fybxinfo)
         {
-            //初始化暂支信息            
-
-            //开始日期的选择范围限制，该表单的参数
-            decimal MoneyLimit = 1000;
-            string endPosId = "1";
-
+            //初始化暂支信息
             if (pars.ContainsKey("isNew"))
             {//新建表单时的空页面显示
                 ViewBag.Display = 1;
@@ -460,49 +475,66 @@ namespace UDS.Controllers
             else if (Request["save"] != null)
             {
                 string isOld = Request["isOld"];
+                //该表单的参数，根据金额大小调整签核步骤
+                decimal moneyLimit = Convert.ToInt32(FlowParameter.GetParaValueFromDb("moneylimit", 5));
+                string endPosId;
                 if (isOld.Equals("1"))
                 {//保存修改的表单的处理逻辑
-                    int formflowid = Convert.ToInt32(Request["id"]);
-                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", formflowid));
+                    int ffid = Convert.ToInt32(Request["id"]);
+                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
-                    UDS.Models.FYBXInfo.UpdateInfo(fybxinfo, innerid);
+                    FYBXInfo.UpdateInfo(fybxinfo, innerid);
                     //修改总表单中的签核步奏
                     int flowid = Convert.ToInt32(dtPreMain.Rows[0]["formid"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    if (fybxinfo.Money <= MoneyLimit)
-                        if (signposlist.Contains(endPosId))
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        if (fybxinfo.Money <= moneyLimit)
                         {
-                            int startIndex = signposlist.IndexOf(endPosId);
-                            int endIndex = signposlist.Count - 2;
-                            signposlist.RemoveRange(startIndex, endIndex);
+                            endPosId = FlowParameter.GetParaValueFromDb("endposid", 5).ToString();
+                            if (signposlist.Contains(endPosId))
+                            {
+                                int startIndex = signposlist.IndexOf(endPosId);
+                                int endIndex = signposlist.Count - 2;
+                                signposlist.RemoveRange(startIndex, endIndex);
+                            }
                         }
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    UpdateForm(formflowid, signlist);
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        UpdateForm(ffid, signlist);
+                    }
                     ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = formflowid });
+                    ViewBag.Id = ffid;
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
                 }
-                else if (isOld.Equals("0"))
+                if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
                     fybxinfo.AttachContent = fybxinfo.AttachContent ?? string.Empty;
-                    int innerid = UDS.Models.FYBXInfo.AddInfo(fybxinfo);
+                    int innerid = FYBXInfo.AddInfo(fybxinfo);
                     int flowid = int.Parse(Request["id"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    if (fybxinfo.Money <= MoneyLimit)
-                        if (signposlist.Contains(endPosId))
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        if (fybxinfo.Money <= moneyLimit)
                         {
-                            int startIndex = signposlist.IndexOf(endPosId);
-                            int endIndex = signposlist.Count - 2;
-                            signposlist.RemoveRange(startIndex, endIndex);
+                            endPosId = FlowParameter.GetParaValueFromDb("endposid", 5).ToString();
+                            if (signposlist.Contains(endPosId))
+                            {
+                                int startIndex = signposlist.IndexOf(endPosId);
+                                int endIndex = signposlist.Count - 2;
+                                signposlist.RemoveRange(startIndex, endIndex);
+                            }
                         }
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
-                    ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        ViewBag.Old = 1;
+                        ViewBag.Id = formflowid;
+                    }
                     ViewBag.Display = 1;
                     return PartialView();
                 }
@@ -512,7 +544,7 @@ namespace UDS.Controllers
                 int formflowid = Convert.ToInt32(Request["id"]);
                 DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
                 string signlist = preSign.Rows[0]["signposlist"].ToString();
-                int nextid = int.Parse(signlist.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
                 return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
@@ -521,7 +553,7 @@ namespace UDS.Controllers
             {//用于显示表单详细信息的处理逻辑
                 int innerid = pars["innerid"];
                 int show = pars["show"];
-                ViewData.Model = UDS.Models.FYBXInfo.GetInfoById(innerid);
+                ViewData.Model = FYBXInfo.GetInfoById(innerid);
                 ViewBag.Display = show;
                 return PartialView();
             }
@@ -529,7 +561,7 @@ namespace UDS.Controllers
         }
 
         [ValidateInput(false)]
-        public ActionResult SYQMKHInfo(Dictionary<string, int> pars, SYQMKHInfo syqmkhinfo)
+        public ActionResult SyqmkhInfo(Dictionary<string, int> pars, SYQMKHInfo syqmkhinfo)
         {
             if (pars.ContainsKey("isNew"))
             {//新建表单时的空页面显示
@@ -542,26 +574,30 @@ namespace UDS.Controllers
                 string isOld = Request["isOld"];
                 if (isOld.Equals("1"))
                 {//保存修改的表单的处理逻辑
-                    int formflowid = Convert.ToInt32(Request["id"]);
-                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", formflowid));
+                    int ffid = Convert.ToInt32(Request["id"]);
+                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
-                    UDS.Models.SYQMKHInfo.UpdateInfo(syqmkhinfo, innerid);
-                    UpdateForm(formflowid);
+                    SYQMKHInfo.UpdateInfo(syqmkhinfo, innerid);
+                    UpdateForm(ffid);
                     ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = formflowid });
+                    ViewBag.Id = ffid;
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
                 }
                 else if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
-                    int innerid = UDS.Models.SYQMKHInfo.AddInfo(syqmkhinfo);
+                    int innerid = SYQMKHInfo.AddInfo(syqmkhinfo);
                     int flowid = int.Parse(Request["id"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
-                    ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        ViewBag.Old = 1;
+                        ViewBag.Id = formflowid;
+                    }
                     ViewBag.Display = 1;
                     return PartialView();
                 }
@@ -571,7 +607,7 @@ namespace UDS.Controllers
                 int formflowid = Convert.ToInt32(Request["id"]);
                 DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
                 string signlist = preSign.Rows[0]["signposlist"].ToString();
-                int nextid = int.Parse(signlist.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
                 return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
@@ -580,7 +616,7 @@ namespace UDS.Controllers
             {//用于显示表单详细信息的处理逻辑
                 int innerid = pars["innerid"];
                 int show = pars["show"];
-                ViewData.Model = UDS.Models.SYQMKHInfo.GetInfoById(innerid);
+                ViewData.Model = SYQMKHInfo.GetInfoById(innerid);
                 ViewBag.Display = show;
                 return PartialView();
             }
@@ -601,27 +637,31 @@ namespace UDS.Controllers
                 string isOld = Request["isOld"];
                 if (isOld.Equals("1"))
                 {//保存修改的表单的处理逻辑
-                    int formflowid = Convert.ToInt32(Request["id"]);
-                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", formflowid));
+                    int ffid = Convert.ToInt32(Request["id"]);
+                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
-                    UDS.Models.HYJLInfo.UpdateInfo(hyjlinfo, innerid);
-                    UpdateForm(formflowid);
+                    Models.HYJLInfo.UpdateInfo(hyjlinfo, innerid);
+                    UpdateForm(ffid);
                     ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = formflowid });
+                    ViewBag.Id = ffid;
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
                 }
                 else if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
                     hyjlinfo.AttachContent = hyjlinfo.AttachContent ?? string.Empty;
-                    int innerid = UDS.Models.HYJLInfo.AddInfo(hyjlinfo);
+                    int innerid = Models.HYJLInfo.AddInfo(hyjlinfo);
                     int flowid = int.Parse(Request["id"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
-                    ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        ViewBag.Old = 1;
+                        ViewBag.Id = formflowid;
+                    }
                     ViewBag.Display = 1;
                     return PartialView();
                 }
@@ -631,7 +671,7 @@ namespace UDS.Controllers
                 int formflowid = Convert.ToInt32(Request["id"]);
                 DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
                 string signlist = preSign.Rows[0]["signposlist"].ToString();
-                int nextid = int.Parse(signlist.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
                 return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
@@ -640,7 +680,7 @@ namespace UDS.Controllers
             {//用于显示表单详细信息的处理逻辑
                 int innerid = pars["innerid"];
                 int show = pars["show"];
-                ViewData.Model = UDS.Models.HYJLInfo.GetInfoById(innerid);
+                ViewData.Model = Models.HYJLInfo.GetInfoById(innerid);
                 ViewBag.Display = show;
                 return PartialView();
             }
@@ -661,26 +701,30 @@ namespace UDS.Controllers
                 string isOld = Request["isOld"];
                 if (isOld.Equals("1"))
                 {//保存修改的表单的处理逻辑
-                    int formflowid = Convert.ToInt32(Request["id"]);
-                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", formflowid));
+                    int ffid = Convert.ToInt32(Request["id"]);
+                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
-                    UDS.Models.CommonModelInfo.UpdateInfo(commonmodelinfo, innerid);
-                    UpdateForm(formflowid);
+                    Models.CommonModelInfo.UpdateInfo(commonmodelinfo, innerid);
+                    UpdateForm(ffid);
                     ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = formflowid });
+                    ViewBag.Id = ffid;
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
                 }
                 else if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
-                    int innerid = UDS.Models.CommonModelInfo.AddInfo(commonmodelinfo);
+                    int innerid = Models.CommonModelInfo.AddInfo(commonmodelinfo);
                     int flowid = int.Parse(Request["id"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
-                    ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        ViewBag.Old = 1;
+                        ViewBag.Id = formflowid;
+                    }
                     ViewBag.Display = 1;
                     return PartialView();
                 }
@@ -690,7 +734,7 @@ namespace UDS.Controllers
                 int formflowid = Convert.ToInt32(Request["id"]);
                 DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
                 string signlist = preSign.Rows[0]["signposlist"].ToString();
-                int nextid = int.Parse(signlist.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
                 return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
@@ -699,7 +743,7 @@ namespace UDS.Controllers
             {//用于显示表单详细信息的处理逻辑
                 int innerid = pars["innerid"];
                 int show = pars["show"];
-                ViewData.Model = UDS.Models.CommonModelInfo.GetInfoById(innerid);
+                ViewData.Model = Models.CommonModelInfo.GetInfoById(innerid);
                 ViewBag.Display = show;
                 return PartialView();
             }
@@ -710,7 +754,7 @@ namespace UDS.Controllers
         public ActionResult QTJLInfo(Dictionary<string, int> pars, QTJLInfo qtjlinfo)
         {
             //初始化下拉列表的数据信息
-            ViewData["typelist"] = UDS.Models.QTJLInfo.GetTypeList();
+            ViewData["typelist"] = Models.QTJLInfo.GetTypeList();
             if (pars.ContainsKey("isNew"))
             {//新建表单时的空页面显示
                 ViewBag.Display = 1;
@@ -722,26 +766,30 @@ namespace UDS.Controllers
                 string isOld = Request["isOld"];
                 if (isOld.Equals("1"))
                 {//保存修改的表单的处理逻辑
-                    int formflowid = Convert.ToInt32(Request["id"]);
-                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", formflowid));
+                    int ffid = Convert.ToInt32(Request["id"]);
+                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
-                    UDS.Models.QTJLInfo.UpdateInfo(qtjlinfo, innerid);
-                    UpdateForm(formflowid);
+                    Models.QTJLInfo.UpdateInfo(qtjlinfo, innerid);
+                    UpdateForm(ffid);
                     ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = formflowid });
+                    ViewBag.Id = ffid;
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
                 }
                 else if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
-                    int innerid = UDS.Models.QTJLInfo.AddInfo(qtjlinfo);
+                    int innerid = Models.QTJLInfo.AddInfo(qtjlinfo);
                     int flowid = int.Parse(Request["id"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
-                    ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        ViewBag.Old = 1;
+                        ViewBag.Id = formflowid;
+                    }
                     ViewBag.Display = 1;
                     return PartialView();
                 }
@@ -751,7 +799,7 @@ namespace UDS.Controllers
                 int formflowid = Convert.ToInt32(Request["id"]);
                 DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
                 string signlist = preSign.Rows[0]["signposlist"].ToString();
-                int nextid = int.Parse(signlist.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
                 return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
@@ -760,7 +808,7 @@ namespace UDS.Controllers
             {//用于显示表单详细信息的处理逻辑
                 int innerid = pars["innerid"];
                 int show = pars["show"];
-                ViewData.Model = UDS.Models.QTJLInfo.GetInfoById(innerid);
+                ViewData.Model = Models.QTJLInfo.GetInfoById(innerid);
                 ViewBag.Display = show;
                 return PartialView();
             }
@@ -781,26 +829,30 @@ namespace UDS.Controllers
                 string isOld = Request["isOld"];
                 if (isOld.Equals("1"))
                 {//保存修改的表单的处理逻辑
-                    int formflowid = Convert.ToInt32(Request["id"]);
-                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", formflowid));
+                    int ffid = Convert.ToInt32(Request["id"]);
+                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
-                    UDS.Models.XZJXInfo.UpdateInfo(xzjxinfo, innerid);
-                    UpdateForm(formflowid);
+                    Models.XZJXInfo.UpdateInfo(xzjxinfo, innerid);
+                    UpdateForm(ffid);
                     ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = formflowid });
+                    ViewBag.Id = ffid;
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
                 }
                 else if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
-                    int innerid = UDS.Models.XZJXInfo.AddInfo(xzjxinfo);
+                    int innerid = Models.XZJXInfo.AddInfo(xzjxinfo);
                     int flowid = int.Parse(Request["id"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
-                    ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        ViewBag.Old = 1;
+                        ViewBag.Id = formflowid;
+                    }
                     ViewBag.Display = 1;
                     return PartialView();
                 }
@@ -810,7 +862,7 @@ namespace UDS.Controllers
                 int formflowid = Convert.ToInt32(Request["id"]);
                 DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
                 string signlist = preSign.Rows[0]["signposlist"].ToString();
-                int nextid = int.Parse(signlist.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
                 return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
@@ -819,7 +871,7 @@ namespace UDS.Controllers
             {//用于显示表单详细信息的处理逻辑
                 int innerid = pars["innerid"];
                 int show = pars["show"];
-                ViewData.Model = UDS.Models.XZJXInfo.GetInfoById(innerid);
+                ViewData.Model = Models.XZJXInfo.GetInfoById(innerid);
                 ViewBag.Display = show;
                 return PartialView();
             }
@@ -830,7 +882,7 @@ namespace UDS.Controllers
         public ActionResult PXInfo(Dictionary<string, int> pars, PXInfo pxinfo)
         {
             //初始化下拉列表的数据信息            
-            ViewData["typelist"] = UDS.Models.PXInfo.GetTypeList();
+            ViewData["typelist"] = Models.PXInfo.GetTypeList();
             if (pars.ContainsKey("isNew"))
             {//新建表单时的空页面显示
                 ViewBag.Display = 1;
@@ -842,26 +894,30 @@ namespace UDS.Controllers
                 string isOld = Request["isOld"];
                 if (isOld.Equals("1"))
                 {//保存修改的表单的处理逻辑
-                    int formflowid = Convert.ToInt32(Request["id"]);
-                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", formflowid));
+                    int ffid = Convert.ToInt32(Request["id"]);
+                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
-                    UDS.Models.PXInfo.UpdateInfo(pxinfo, innerid);
-                    UpdateForm(formflowid);
+                    Models.PXInfo.UpdateInfo(pxinfo, innerid);
+                    UpdateForm(ffid);
                     ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = formflowid });
+                    ViewBag.Id = ffid;
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
                 }
                 else if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
-                    int innerid = UDS.Models.PXInfo.AddInfo(pxinfo);
+                    int innerid = Models.PXInfo.AddInfo(pxinfo);
                     int flowid = int.Parse(Request["id"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
-                    ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        ViewBag.Old = 1;
+                        ViewBag.Id = formflowid;
+                    }
                     ViewBag.Display = 1;
                     return PartialView();
                 }
@@ -871,7 +927,7 @@ namespace UDS.Controllers
                 int formflowid = Convert.ToInt32(Request["id"]);
                 DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
                 string signlist = preSign.Rows[0]["signposlist"].ToString();
-                int nextid = int.Parse(signlist.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
                 return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
@@ -880,7 +936,7 @@ namespace UDS.Controllers
             {//用于显示表单详细信息的处理逻辑
                 int innerid = pars["innerid"];
                 int show = pars["show"];
-                ViewData.Model = UDS.Models.PXInfo.GetInfoById(innerid);
+                ViewData.Model = Models.PXInfo.GetInfoById(innerid);
                 ViewBag.Display = show;
                 return PartialView();
             }
@@ -897,29 +953,65 @@ namespace UDS.Controllers
             }
             else if (Request["save"] != null)
             {
+                decimal moneyLimit = Convert.ToInt32(FlowParameter.GetParaValueFromDb("moneylimit", 11));
+                string endPosId;
                 string isOld = Request["isOld"];
                 if (isOld.Equals("1"))
                 {//保存修改的表单的处理逻辑
-                    int formflowid = Convert.ToInt32(Request["id"]);
-                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", formflowid));
+                    int ffid = Convert.ToInt32(Request["id"]);
+                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
-                    UDS.Models.GDZCInfo.UpdateInfo(gdzcinfo, innerid);
-                    UpdateForm(formflowid);
+                    Models.GDZCInfo.UpdateInfo(gdzcinfo, innerid);
+                    //修改总表单中的签核步奏
+                    int flowid = Convert.ToInt32(dtPreMain.Rows[0]["formid"]);
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        if (gdzcinfo.TotalPrice <= moneyLimit)
+                        {
+                            endPosId = FlowParameter.GetParaValueFromDb("endposid", 11).ToString();
+                            if (signposlist.Contains(endPosId))
+                            {
+                                int startIndex = signposlist.IndexOf(endPosId);
+                                int endIndex = signposlist.Count - 2;
+                                signposlist.RemoveRange(startIndex, endIndex);
+                            }
+                        }
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        UpdateForm(ffid, signlist);
+                    }
                     ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = formflowid });
+                    ViewBag.Id = ffid;
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
                 }
-                else if (isOld.Equals("0"))
+                if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
-                    int innerid = UDS.Models.GDZCInfo.AddInfo(gdzcinfo);
+                    int innerid = Models.GDZCInfo.AddInfo(gdzcinfo);
                     int flowid = int.Parse(Request["id"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
-                    ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        if (gdzcinfo.TotalPrice <= moneyLimit)
+                        {
+                            endPosId = FlowParameter.GetParaValueFromDb("endposid", 11).ToString();
+                            if (signposlist.Contains(endPosId))
+                            {
+                                int startIndex = signposlist.IndexOf(endPosId);
+                                int endIndex = signposlist.Count - 2;
+                                signposlist.RemoveRange(startIndex, endIndex);
+                            }
+                        }
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        ViewBag.Old = 1;
+                        ViewBag.Id = formflowid;
+                    }
                     ViewBag.Display = 1;
                     return PartialView();
                 }
@@ -929,7 +1021,7 @@ namespace UDS.Controllers
                 int formflowid = Convert.ToInt32(Request["id"]);
                 DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
                 string signlist = preSign.Rows[0]["signposlist"].ToString();
-                int nextid = int.Parse(signlist.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
                 return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
@@ -938,7 +1030,7 @@ namespace UDS.Controllers
             {//用于显示表单详细信息的处理逻辑
                 int innerid = pars["innerid"];
                 int show = pars["show"];
-                ViewData.Model = UDS.Models.GDZCInfo.GetInfoById(innerid);
+                ViewData.Model = Models.GDZCInfo.GetInfoById(innerid);
                 ViewBag.Display = show;
                 return PartialView();
             }
@@ -956,28 +1048,65 @@ namespace UDS.Controllers
             else if (Request["save"] != null)
             {
                 string isOld = Request["isOld"];
+                decimal moneyLimit = Convert.ToInt32(FlowParameter.GetParaValueFromDb("moneylimit", 12));
+                string endPosId;
                 if (isOld.Equals("1"))
                 {//保存修改的表单的处理逻辑
-                    int formflowid = Convert.ToInt32(Request["id"]);
-                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", formflowid));
+                    int ffid = Convert.ToInt32(Request["id"]);
+                    DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
-                    UDS.Models.ZZInfo.UpdateInfo(zzinfo, innerid);
-                    UpdateForm(formflowid);
+                    Models.ZZInfo.UpdateInfo(zzinfo, innerid);
+                    //修改总表单中的签核步奏
+                    int flowid = Convert.ToInt32(dtPreMain.Rows[0]["formid"]);
+                    var user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        if (zzinfo.Money <= moneyLimit)
+                        {
+                            endPosId = FlowParameter.GetParaValueFromDb("endposid", 12).ToString();
+                            if (signposlist.Contains(endPosId))
+                            {
+                                int startIndex = signposlist.IndexOf(endPosId);
+                                int endIndex = signposlist.Count - 2;
+                                signposlist.RemoveRange(startIndex, endIndex);
+                            }
+                        }
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        UpdateForm(ffid, signlist);
+                    }
                     ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = formflowid });
+                    ViewBag.Id = ffid;
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
                 }
-                else if (isOld.Equals("0"))
+                if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
-                    int innerid = UDS.Models.ZZInfo.AddInfo(zzinfo);
+                    int innerid = Models.ZZInfo.AddInfo(zzinfo);
                     int flowid = int.Parse(Request["id"]);
-                    int eid = (Session["user"] as User).Eid;
-                    List<string> signposlist = CalcSignList(flowid, eid);
-                    signposlist.RemoveAt(0);
-                    string signlist = string.Join("|", signposlist.ToArray());
-                    int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
-                    ViewBag.Old = 1;
-                    ViewBag.Id = formflowid;
+                    User user = Session["user"] as User;
+                    if (user != null)
+                    {
+                        int eid = user.Eid;
+                        List<string> signposlist = CalcSignList(flowid, eid);
+                        signposlist.RemoveAt(0);
+                        if (zzinfo.Money <= moneyLimit)
+                        {
+                            endPosId = FlowParameter.GetParaValueFromDb("endposid", 12).ToString();
+                            if (signposlist.Contains(endPosId))
+                            {
+                                int startIndex = signposlist.IndexOf(endPosId);
+                                int endIndex = signposlist.Count - 2;
+                                signposlist.RemoveRange(startIndex, endIndex);
+                            }
+                        }
+                        string signlist = string.Join("|", signposlist.ToArray());
+                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+
+                        ViewBag.Old = 1;
+                        ViewBag.Id = formflowid;
+                    }
                     ViewBag.Display = 1;
                     return PartialView();
                 }
@@ -987,7 +1116,7 @@ namespace UDS.Controllers
                 int formflowid = Convert.ToInt32(Request["id"]);
                 DataTable preSign = SQLHelper.ProcDataTable("usp_PreSign", new SqlParameter("@id", formflowid));
                 string signlist = preSign.Rows[0]["signposlist"].ToString();
-                int nextid = int.Parse(signlist.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
+                int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
                 return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
@@ -996,7 +1125,7 @@ namespace UDS.Controllers
             {//用于显示表单详细信息的处理逻辑
                 int innerid = pars["innerid"];
                 int show = pars["show"];
-                ViewData.Model = UDS.Models.ZZInfo.GetInfoById(innerid);
+                ViewData.Model = Models.ZZInfo.GetInfoById(innerid);
                 ViewBag.Display = show;
                 return PartialView();
             }

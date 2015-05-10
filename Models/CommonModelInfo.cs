@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Linq;
-using System.Web;
 
 namespace UDS.Models
 {
@@ -13,8 +10,6 @@ namespace UDS.Models
 
         [Required(ErrorMessage = "*")]
         public string AttachContent { get; set; }
-
-        public CommonModelInfo() { }
 
         internal static int AddInfo(CommonModelInfo commoninfo)
         {

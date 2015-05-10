@@ -19,7 +19,7 @@
 }
 
 #headinfo {
-    width: 20%;
+    width: 25%;
     float: right;
     text-align: left;
     min-width: 350px;
@@ -29,11 +29,11 @@
 
 #greet {
     float: left;
-    width: 35%;
+    width: 30%;
 }
 
 #timeshow {
-    width: 40%;
+    width: 45%;
     float: left;
 }
 

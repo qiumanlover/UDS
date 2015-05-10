@@ -163,23 +163,39 @@ namespace UDS.Controllers
             ViewData.Model = SysUser.GetList();
             return PartialView();
         }
-
+        [HttpPost]
         public ActionResult UserDelMng(int id)
         {
+            User user = Session["user"] as User;
+            if (user != null && user.Id == id)
+            {
+                return JavaScript("alert('无法停用当前账号，请使用其他具有权限的账号进行操作！')");
+            }
             SysUser.StopAccount(id);
             return RedirectToAction("ForcePassword");
         }
 
-        public JavaScriptResult UserReset(int id, string loginname)
+        public JavaScriptResult UserReset(int id, string name)
         {
+            User user = Session["user"] as User;
+            if (user != null && user.Id == id)
+            {
+                SysUser.ResetPass(id);
+                return JavaScript("alert('当前账号密码已重置, 请重新登录');self.location.href = '/Login/Index';");
+            }
             SysUser.ResetPass(id);
-            return JavaScript(string.Format("alert('账号：{0} 的密码已重置')", loginname));
+            return JavaScript(string.Format("alert('账号：{0} 的密码已重置')", name));
         }
 
         public ActionResult SysUserAdd(string loginname)
         {
             SysUser.AddAdministrator(loginname);
             return RedirectToAction("ForcePassword");
+        }
+
+        public ActionResult FormParameters()
+        {
+            return PartialView();
         }
     }
 }

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Web;
 
 namespace UDS.Models
 {
@@ -16,15 +13,15 @@ namespace UDS.Models
         public string State { get; set; }
         public string Nextname { get; set; }
 
-        public BaseInfo DBToObject(DataTable dtBaseInfo)
+        public BaseInfo DbToObject(DataTable dtBaseInfo)
         {
-            this.Formname = dtBaseInfo.Rows[0]["formname"].ToString();
-            this.Applier = dtBaseInfo.Rows[0]["name"].ToString();
-            this.Department = dtBaseInfo.Rows[0]["department"].ToString();
-            this.Posotion = dtBaseInfo.Rows[0]["position"].ToString();
-            this.Writetime = Convert.ToDateTime(dtBaseInfo.Rows[0]["writetime"]).ToString("yyyy-MM-dd HH:mm:ss");
-            this.State = dtBaseInfo.Rows[0]["state"].ToString();
-            this.Nextname = dtBaseInfo.Rows[0]["nextname"].ToString();
+            Formname = dtBaseInfo.Rows[0]["formname"].ToString();
+            Applier = dtBaseInfo.Rows[0]["name"].ToString();
+            Department = dtBaseInfo.Rows[0]["department"].ToString();
+            Posotion = dtBaseInfo.Rows[0]["position"].ToString();
+            Writetime = Convert.ToDateTime(dtBaseInfo.Rows[0]["writetime"]).ToString("yyyy-MM-dd HH:mm:ss");
+            State = dtBaseInfo.Rows[0]["state"].ToString();
+            Nextname = dtBaseInfo.Rows[0]["nextname"].ToString();
 
             return this;
         }

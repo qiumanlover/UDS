@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using UDS.Models;
 
@@ -17,65 +15,81 @@ namespace UDS.Controllers
 
         public ActionResult NextSignList()
         {
-            int eid = (Session["user"] as User).Eid;
-            int pagecount;
-            int pageindex = int.Parse(Request["pageindex"]);
-            List<InfoList> data = GetInfoListFromDB("usp_NextSign", eid, pageindex, 20, out pagecount);
-            ViewData.Model = data;
-            ViewBag.pageCount = pagecount;
-            ViewBag.pageIndex = pagecount == 0 ? 0 : pageindex;
-            ViewBag.frtIndex = pagecount == 0 ? 0 : 1;
-            ViewBag.preIndex = pagecount == 0 ? 0 : (pageindex == 1 ? 1 : pageindex - 1);
-            ViewBag.nxtIndex = pagecount == 0 ? 0 : (pageindex == pagecount ? pageindex : pageindex + 1);
-            ViewData["paras"] = string.Format("pageindex={0}", pageindex);
+            var user = Session["user"] as User;
+            if (user != null)
+            {
+                int eid = user.Eid;
+                int pagecount;
+                int pageindex = int.Parse(Request["pageindex"]);
+                List<InfoList> data = GetInfoListFromDb("usp_NextSign", eid, pageindex, 20, out pagecount);
+                ViewData.Model = data;
+                ViewBag.pageCount = pagecount;
+                ViewBag.pageIndex = pagecount == 0 ? 0 : pageindex;
+                ViewBag.frtIndex = pagecount == 0 ? 0 : 1;
+                ViewBag.preIndex = pagecount == 0 ? 0 : (pageindex == 1 ? 1 : pageindex - 1);
+                ViewBag.nxtIndex = pagecount == 0 ? 0 : (pageindex == pagecount ? pageindex : pageindex + 1);
+                ViewData["paras"] = string.Format("pageindex={0}", pageindex);
+            }
             return PartialView();
         }
 
         public ActionResult RecordSignList()
         {
-            int eid = (Session["user"] as User).Eid;
-            int pagecount;
-            int pageindex = int.Parse(Request["pageindex"]);
-            List<InfoList> data = GetInfoListFromDB("usp_RecordSign", eid, pageindex, 20, out pagecount);
-            ViewData.Model = data;
-            ViewBag.pageCount = pagecount;
-            ViewBag.pageIndex = pagecount == 0 ? 0 : pageindex;
-            ViewBag.frtIndex = pagecount == 0 ? 0 : 1;
-            ViewBag.preIndex = pagecount == 0 ? 0 : (pageindex == 1 ? 1 : pageindex - 1);
-            ViewBag.nxtIndex = pagecount == 0 ? 0 : (pageindex == pagecount ? pageindex : pageindex + 1);
-            ViewData["paras"] = string.Format("pageindex={0}", pageindex);
+            var user = Session["user"] as User;
+            if (user != null)
+            {
+                int eid = user.Eid;
+                int pagecount;
+                int pageindex = int.Parse(Request["pageindex"]);
+                List<InfoList> data = GetInfoListFromDb("usp_RecordSign", eid, pageindex, 20, out pagecount);
+                ViewData.Model = data;
+                ViewBag.pageCount = pagecount;
+                ViewBag.pageIndex = pagecount == 0 ? 0 : pageindex;
+                ViewBag.frtIndex = pagecount == 0 ? 0 : 1;
+                ViewBag.preIndex = pagecount == 0 ? 0 : (pageindex == 1 ? 1 : pageindex - 1);
+                ViewBag.nxtIndex = pagecount == 0 ? 0 : (pageindex == pagecount ? pageindex : pageindex + 1);
+                ViewData["paras"] = string.Format("pageindex={0}", pageindex);
+            }
             return PartialView();
         }
 
         public ActionResult OwnApplyList()
         {
-            int eid = (Session["user"] as User).Eid;
-            int pagecount;
-            int pageindex = int.Parse(Request["pageindex"]);
-            List<InfoList> data = GetInfoListFromDB("usp_OwnApply", eid, pageindex, 20, out pagecount);
-            ViewData.Model = data;
-            ViewBag.pageCount = pagecount;
-            ViewBag.pageIndex = pagecount == 0 ? 0 : pageindex;
-            ViewBag.frtIndex = pagecount == 0 ? 0 : 1;
-            ViewBag.preIndex = pagecount == 0 ? 0 : (pageindex == 1 ? 1 : pageindex - 1);
-            ViewBag.nxtIndex = pagecount == 0 ? 0 : (pageindex == pagecount ? pageindex : pageindex + 1);
-            ViewData["paras"] = string.Format("pageindex={0}", pageindex);
+            var user = Session["user"] as User;
+            if (user != null)
+            {
+                int eid = user.Eid;
+                int pagecount;
+                int pageindex = int.Parse(Request["pageindex"]);
+                List<InfoList> data = GetInfoListFromDb("usp_OwnApply", eid, pageindex, 20, out pagecount);
+                ViewData.Model = data;
+                ViewBag.pageCount = pagecount;
+                ViewBag.pageIndex = pagecount == 0 ? 0 : pageindex;
+                ViewBag.frtIndex = pagecount == 0 ? 0 : 1;
+                ViewBag.preIndex = pagecount == 0 ? 0 : (pageindex == 1 ? 1 : pageindex - 1);
+                ViewBag.nxtIndex = pagecount == 0 ? 0 : (pageindex == pagecount ? pageindex : pageindex + 1);
+                ViewData["paras"] = string.Format("pageindex={0}", pageindex);
+            }
             return PartialView();
         }
 
         public ActionResult OwnDraftList()
         {
-            int eid = (Session["user"] as User).Eid;
-            int pagecount;
-            int pageindex = int.Parse(Request["pageindex"]);
-            List<InfoList> data = GetInfoListFromDB("usp_OwnDraft", eid, pageindex, 20, out pagecount);
-            ViewData.Model = data;
-            ViewBag.pageCount = pagecount;
-            ViewBag.pageIndex = pagecount == 0 ? 0 : pageindex;
-            ViewBag.frtIndex = pagecount == 0 ? 0 : 1;
-            ViewBag.preIndex = pagecount == 0 ? 0 : (pageindex == 1 ? 1 : pageindex - 1);
-            ViewBag.nxtIndex = pagecount == 0 ? 0 : (pageindex == pagecount ? pageindex : pageindex + 1);
-            ViewData["paras"] = string.Format("pageindex={0}", pageindex);
+            var user = Session["user"] as User;
+            if (user != null)
+            {
+                int eid = user.Eid;
+                int pagecount;
+                int pageindex = int.Parse(Request["pageindex"]);
+                List<InfoList> data = GetInfoListFromDb("usp_OwnDraft", eid, pageindex, 20, out pagecount);
+                ViewData.Model = data;
+                ViewBag.pageCount = pagecount;
+                ViewBag.pageIndex = pagecount == 0 ? 0 : pageindex;
+                ViewBag.frtIndex = pagecount == 0 ? 0 : 1;
+                ViewBag.preIndex = pagecount == 0 ? 0 : (pageindex == 1 ? 1 : pageindex - 1);
+                ViewBag.nxtIndex = pagecount == 0 ? 0 : (pageindex == pagecount ? pageindex : pageindex + 1);
+                ViewData["paras"] = string.Format("pageindex={0}", pageindex);
+            }
             return PartialView();
         }
 
@@ -91,7 +105,7 @@ namespace UDS.Controllers
             return PartialView();
         }
 
-        private static List<InfoList> GetInfoListFromDB(string procname, int eid, int pageindex, int pagesize, out int pagecount)
+        private static List<InfoList> GetInfoListFromDb(string procname, int eid, int pageindex, int pagesize, out int pagecount)
         {
             SqlParameter[] parameters = { new SqlParameter("@pageIndex", SqlDbType.Int), new SqlParameter("@pageSize", SqlDbType.Int), new SqlParameter("@pageCount", SqlDbType.Int), new SqlParameter("@eid", SqlDbType.Int) };
             parameters[0].Value = pageindex;
