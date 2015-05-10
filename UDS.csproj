@@ -145,6 +145,7 @@
     <Compile Include="Models\CommonModelInfo.cs" />
     <Compile Include="Models\Department.cs" />
     <Compile Include="Models\EmployeeUser.cs" />
+    <Compile Include="Models\FieldType.cs" />
     <Compile Include="Models\FilterableClientDataTypeModelValidatorProvider.cs" />
     <Compile Include="Models\Flow.cs" />
     <Compile Include="Models\FlowParameter.cs" />
@@ -628,6 +629,7 @@
     <Content Include="Views\Administrator\FormQuery.cshtml" />
     <Content Include="Views\Administrator\ForcePassword.cshtml" />
     <Content Include="Views\Administrator\FormParameters.cshtml" />
+    <Content Include="Views\Administrator\FieldTypePritialAction.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

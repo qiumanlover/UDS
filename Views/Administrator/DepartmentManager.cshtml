@@ -3,7 +3,7 @@
 <script type="text/javascript">
     function check() {
         var dname = $("input#DName").val();
-        if (dname == null || dname == "") {
+        if (dname == null || dname === "") {
             alert("部门名称不能为空");
             return false;
         }
@@ -17,14 +17,14 @@
         return false;
     }
     function getinfo(id) {
-        ajaxPost("/Administrator/DepartmentGetInfo", "id=" + id, function onsuccess(text) {
+        ajaxPost("/Administrator/DepartmentGetInfo", "id=" + id, function(text) {
             var data = $.parseJSON(text);
             $("input#Id").val(data.id);
             $("input#DName").val(data.pname);
             $("select#PId").val(data.pid);
             $("input#submit").val("保存");
-        }, function onfail (text) {
-        })
+        }, function() {
+        });
     }
 </script>
 
@@ -42,10 +42,13 @@
             <select id="PId" name="PId">
                 @{
     var poslist = ViewData["typelist"] as List<SelectListItem>;
-    foreach (var item in poslist)
-    {
-        <option value="@item.Value">@item.Text</option>
-    }
+                    if (poslist != null)
+                    {
+                        foreach (var item in poslist)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    }
                 }
             </select>
         </li>

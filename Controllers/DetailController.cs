@@ -311,7 +311,6 @@ namespace UDS.Controllers
             ViewBag.EndWorkMin = Convert.ToInt32(FlowParameter.GetParaValueFromDb("endworkmin", 3));
             ViewBag.BeginWorkHour = Convert.ToInt32(FlowParameter.GetParaValueFromDb("beginworkhour", 3));
             ViewBag.BeginWorkMin = Convert.ToInt32(FlowParameter.GetParaValueFromDb("beginworkmin", 3));
-            string endPosId = FlowParameter.GetParaValueFromDb("endposid", 3).ToString();
 
             if (pars.ContainsKey("isNew"))
             {//新建表单时的空页面显示
@@ -321,6 +320,7 @@ namespace UDS.Controllers
             }
             else if (Request["save"] != null)
             {
+                string endPosId;
                 int hoursCount = Convert.ToInt32(FlowParameter.GetParaValueFromDb("hourslimit", 3));
                 string isOld = Request["isOld"];
                 if (isOld.Equals("1"))
@@ -338,12 +338,15 @@ namespace UDS.Controllers
                         List<string> signposlist = CalcSignList(flowid, eid);
                         signposlist.RemoveAt(0);
                         if (qjinfo.TotalTime <= hoursCount)
+                        {
+                            endPosId = FlowParameter.GetParaValueFromDb("endposid", 3).ToString();
                             if (signposlist.Contains(endPosId))
                             {
                                 int startIndex = signposlist.IndexOf(endPosId);
                                 int endIndex = signposlist.Count - 2;
                                 signposlist.RemoveRange(startIndex, endIndex);
                             }
+                        }
                         string signlist = string.Join("|", signposlist.ToArray());
                         UpdateForm(ffid, signlist);
                     }
@@ -362,12 +365,15 @@ namespace UDS.Controllers
                         List<string> signposlist = CalcSignList(flowid, eid);
                         signposlist.RemoveAt(0);
                         if (qjinfo.TotalTime <= hoursCount)
+                        {
+                            endPosId = FlowParameter.GetParaValueFromDb("endposid", 3).ToString();
                             if (signposlist.Contains(endPosId))
                             {
                                 int startIndex = signposlist.IndexOf(endPosId);
                                 int endIndex = signposlist.Count - 2;
                                 signposlist.RemoveRange(startIndex, endIndex);
                             }
+                        }
                         string signlist = string.Join("|", signposlist.ToArray());
                         int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;

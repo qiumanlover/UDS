@@ -40,38 +40,29 @@ namespace UDS.Models
         internal static List<SelectListItem> GetSelector()
         {
             DataTable typedata = SQLHelper.ProcDataTable("usp_PositionSelectorCharge");
-            List<SelectListItem> typeList = new List<SelectListItem>();
-            foreach (DataRow row in typedata.Rows)
-            {
-                typeList.Add(new SelectListItem { Value = row["id"].ToString(), Text = row["name"].ToString() });
-            }
-            return typeList;
+            return (from DataRow row in typedata.Rows select new SelectListItem {Value = row["id"].ToString(), Text = row["name"].ToString()}).ToList();
         }
 
         internal static Department GetInfoById(int id)
         {
-            Department info = new Department();
             DataTable dt = SQLHelper.ExecuteDataTable("select name, directorposid from T_department where id=@id", id);
-            info.Id = id;
-            info.PName = dt.Rows[0]["name"].ToString();
-            info.PId = Convert.ToInt32(dt.Rows[0]["directorposid"]);
+            Department info = new Department
+            {
+                Id = id,
+                PName = dt.Rows[0]["name"].ToString(),
+                PId = Convert.ToInt32(dt.Rows[0]["directorposid"])
+            };
             return info;
         }
 
         internal static List<Department> GetList()
         {
-            DataTable dt = SQLHelper.ProcDataTable("usp_DepartmentList");
-            List<Department> list = new List<Department>();
-            foreach (DataRow row in dt.Rows)
-            {
-                Department info = new Department();
-                info.Id = Convert.ToInt32(row["id"]);
-                info.DName = row["dname"].ToString();
-                info.PName = row["pname"].ToString();
-                info.PId = Convert.ToInt32(row["pid"]);
-                list.Add(info);
-            }
-            return list;
+            var dt = SQLHelper.ProcDataTable("usp_DepartmentList");
+            return (from DataRow row in dt.Rows
+                select new Department
+                {
+                    Id = Convert.ToInt32(row["id"]), DName = row["dname"].ToString(), PName = row["pname"].ToString(), PId = Convert.ToInt32(row["pid"])
+                }).ToList();
         }
     }
 }

@@ -12,5 +12,10 @@ namespace UDS.Models
             return SQLHelper.ExecuteScalar(
                 "select paravalue from T_parameter where paraname=@name and templateid=@tid", paraname, templateid);
         }
+
+        public static int UpdateParaValue(string paraname, int templateid, string paravalue)
+        {
+            return SQLHelper.ExecuteNonQuery("update T_parameter set paravalue=@value where paraname=@name and templateid=@tid", paravalue, paraname, templateid);
+        }
     }
 }

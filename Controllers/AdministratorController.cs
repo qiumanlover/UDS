@@ -195,7 +195,43 @@ namespace UDS.Controllers
 
         public ActionResult FormParameters()
         {
+            ViewData["jbtmpname"] = "加班申请模板";
+            ViewData["jbdaysbefore"] = -2;
             return PartialView();
+        }
+
+        public ActionResult FieldTypePritialAction()
+        {
+            ViewData.Model = FieldType.GetList();
+            ViewData["typelist"] = FieldType.GetSelector();
+            return PartialView();
+        }
+
+        public JsonResult FieldTypeGetInfo(int id)
+        {
+            FieldType ft = FieldType.GetInfoById(id);
+            object obj = new { id = ft.Id, subname = ft.SubName, typename = ft.TypeName };
+            return Json(obj, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult FieldTypeProc(int id, string subname, string typename)
+        {
+            if (id == 0)
+            {
+                FieldType.AddInfo(new FieldType(subname, typename));
+            }
+            else
+            {
+                FieldType.UpdateInfo(new FieldType(id, subname, typename));
+            }
+            return RedirectToAction("FormParameters");
+        }
+        [HttpPost]
+        public JavaScriptResult JbParameter(string paravalue)
+        {
+            SQLHelper.ExecuteNonQuery(
+                "update T_parameter set paravalue=@value where templateid=2 and paraname='daysbefore'", paravalue);
+            return JavaScript(string.Format("alert('加班申请时间限制设置为: {0}天')", paravalue));
         }
     }
 }

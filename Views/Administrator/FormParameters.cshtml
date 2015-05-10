@@ -1,1 +1,28 @@
-﻿
+﻿@model IEnumerable<UDS.Models.FieldType>
+<script type="text/javascript">
+    $("input#jbconfirm").click(function () {
+        var data = $("input#jbdaysbefore").val();
+        ajaxPost("/Administrator/UpdateParameter", "tid=" + 2 + "&paraname=daysbefore&paravalue=" + data, function (text) {
+            eval(text);
+        }, function () { });
+    })
+</script>
+<div id="fieldtype">
+    @Html.Action("FieldTypePritialAction")
+</div>
+<hr style="clear: both" />
+<br />
+<div>
+    @using (Ajax.BeginForm("JbParameter", new AjaxOptions { HttpMethod = "Post" }))
+    {
+        <ul style="list-style: none; -moz-min-width: 680px; -ms-min-width: 680px; -o-min-width: 680px; -webkit-min-width: 680px; min-width: 680px; width: 100%;">
+            <li style="float: left; width: 40%; text-align: left;">
+                @ViewData["jbtmpname"]：<input type="text" id="jbdaysbefore" name="paravalue" value="@ViewData["jbdaysbefore"]" />
+            </li>
+            <li style="float: left; width: 30%; text-align: left;">
+                <input type="submit" value="修改"  />
+            </li>
+        </ul>
+    }
+
+</div>

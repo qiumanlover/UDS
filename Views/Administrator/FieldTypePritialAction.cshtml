@@ -1,0 +1,82 @@
+﻿@model IEnumerable<UDS.Models.FieldType>
+
+<script type="text/javascript">
+    function check() {
+        var subname = $("input#subname").val();
+        if (subname == null || subname === "") {
+            alert("子类名不能为空");
+            return false;
+        }
+        return true;
+    }
+    function dreset() {
+        $("input#id").val("0");
+        $("input#subname").val("");
+        $("select#typename").val("1");
+        $("input#submit").val("增加");
+        return false;
+    }
+    function getinfo(id) {
+        ajaxPost("/Administrator/FieldTypeGetInfo", "id=" + id, function (text) {
+            var data = $.parseJSON(text);
+            $("input#id").val(data.id);
+            $("input#subname").val(data.subname);
+            $("select#typename").val(data.typename);
+            $("input#submit").val("保存");
+        }, function () {
+        });
+    }
+</script>
+@using (Ajax.BeginForm("FieldTypeProc", new AjaxOptions() { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "fieldtype" }))
+{
+    <ul style="list-style:none; min-width:680px; width:100%;">
+        <li style="float:left;">
+            <input type="text" hidden="hidden" style="visibility:hidden" value="0" name="id" id="id" />
+        </li>
+        <li style="float:left; width:40%;text-align:right;">
+            总类型：
+            <select id="typename" name="typename">
+                @{
+    var typelist = ViewData["typelist"] as List<SelectListItem>;
+    if (typelist != null)
+    {
+        foreach (var item in typelist)
+        {
+            <option value="@item.Value">@item.Text</option>
+        }
+    }
+                }
+            </select>
+        </li>
+        <li style="float:left;width:20%;text-align:center;">
+            子类别：<input type="text" name="subname" id="subname" />
+        </li>
+        <li style="float:left;width:30%;text-align:left;">
+            <input type="submit" name="submit" id="submit" value="增加" style="width:60px;height:25px;" onclick="return check()" />
+            <input type="submit" value="取消" style="width:60px;height:25px;" onclick="return dreset()" />
+        </li>
+    </ul>
+}
+<hr style="clear:both;" />
+<br />
+<div>
+    <ul style="width:100%; min-width:670px;">
+        <li style="width:20%; float:left; text-align:right"><label style="width:15%; visibility:hidden;">编辑</label></li>
+        <li style="width:10%; float:left; text-align:center">总类别</li>
+        <li style="width:40%; float:left; text-align:center">子类别</li>
+    </ul>
+    @foreach (var item in Model)
+    {
+        <ul style="clear:both;width:100%;min-width:670px;">
+            <li style="width:20%; float:left; text-align:right">
+                <a href="javascript:;" onclick="getinfo(@item.Id)"><img src="~/Content/png/edit_48.png" style="width:18px; height:18px;" /></a>
+            </li>
+            <li style="width:10%; float:left; text-align:center">
+                @Html.DisplayFor(modelItem => item.TypeName)
+            </li>
+            <li style="width:40%; float:left; text-align:center">
+                @Html.DisplayFor(modelItem => item.SubName)
+            </li>
+        </ul>
+    }
+</div>
