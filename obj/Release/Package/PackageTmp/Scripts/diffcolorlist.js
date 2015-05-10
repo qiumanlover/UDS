@@ -23,18 +23,19 @@
     }
 }
 window.onload = function () {
-    changeColor('list');
+    //changeColor('list');
 }
-
-$("#fevent").click = function () {
-    changeColor('list');
-}
-$("#record").click = function () {
-    changeColor('list');
-}
-$("#apply").click = function () {
-    changeColor('list');
-}
-$("#draft").click = function () {
-    changeColor('list');
+function funct() {
+    $("#fevent").click = function () {
+        changeColor('list');
+    }
+    $("#record").click = function () {
+        changeColor('list');
+    }
+    $("#apply").click = function () {
+        changeColor('list');
+    }
+    $("#draft").click = function () {
+        changeColor('list');
+    }
 }

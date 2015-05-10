@@ -1,15 +1,33 @@
 ﻿<nav class="nav">
     <ul class="nav__menu">
         <li class="nav__menu-item">
-            @Ajax.ActionLink("待批阅", "NextSignList", "List", new { pageindex = 1 }, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" }, new { id = "fevent" })
+            @Ajax.ActionLink("职位管理", "PositionManager", "Administrator", null, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" }, new { id = "fevent" })
         </li>
         <li class="nav__menu-item">
-            <a>代理</a>
-            <ul class="nav__submenu">
-                <li class="nav__submenu-item">
-                    @Ajax.ActionLink("代理签核", "AgentSign", "Agent", new { pageindex = 1 }, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
-                </li>
-            </ul>
+            @Ajax.ActionLink("部门管理", "DepartmentManager", "Administrator", new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
         </li>
+        <li class="nav__menu-item">
+            @Ajax.ActionLink("员工管理", "EmployeeManager", "Administrator", new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+        </li>
+        <li class="nav__menu-item">
+            @Ajax.ActionLink("流程管理", "FlowManager", "Administrator", new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+        </li>
+        <li class="nav__menu-item">
+            @Ajax.ActionLink("表单参数", "FormParameters", "Administrator", new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+        </li>
+        <li class="nav__menu-item">
+            @Ajax.ActionLink("表单查询", "FormQuery", "Administrator", new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+        </li>
+        <li class="nav__menu-item">
+            @Ajax.ActionLink("强制密码", "ForcePassword", "Administrator", new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+        </li>
+        @*<li class="nav__menu-item">
+                <a>代理</a>
+                <ul class="nav__submenu">
+                    <li class="nav__submenu-item">
+                        @Ajax.ActionLink("代理签核", "AgentSign", "Agent", new { pageindex = 1 }, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+                    </li>
+                </ul>
+            </li>*@
     </ul>
 </nav>
