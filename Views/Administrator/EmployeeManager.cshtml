@@ -47,10 +47,10 @@
         <li style="float:left;">
             <input type="text" hidden="hidden" style="visibility:hidden" value="0" name="id" id="id" />
         </li>
-        <li style="float:left;width:10%;text-align:center;">
+        <li style="float:left;width:12%;text-align:center;">
             姓名：<input type="text" name="name" id="name" style="width:80px;height:22px;" />
         </li>
-        <li style="float:left; width:17%;text-align:center;">
+        <li style="float:left; width:15%;text-align:center;">
             职位：
             <select id="pid" name="pid" style="height: 22px;">
                 @{
@@ -122,10 +122,12 @@
                 @if (item.IsOnJob)
                 {
                     @Ajax.ActionLink("离职", "EmployeeUserCareer", new { onjob = 0, eid = @item.Id }, new AjaxOptions() { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "replace" });
+                    @*<a href="javascript:;" onclick="getinfo(@item.Id)">离职</a>*@
                 }
                 else if (!item.IsOnJob)
                 {
                     @Ajax.ActionLink("在职", "EmployeeUserCareer", new { onjob = 1, eid = @item.Id }, new AjaxOptions() { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "replace" });
+                    @*<a href="javascript:;" onclick="getinfo(@item.Id)">在职</a>*@
                 }
             </li>
             <li style="width:5%; float:left; text-align:right">

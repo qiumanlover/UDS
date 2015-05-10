@@ -7,17 +7,9 @@
         string pageName = ViewBag.pageName;
         string actionname = ViewBag.ActionName;
         string controllername = ViewBag.ControllerName;
-        string parastr = ViewData["paras"].ToString();
-        string[] parastrs = parastr.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
-        RouteValueDictionary paras = new RouteValueDictionary();
-        foreach (string item in parastrs)
-        {
-            string[] items = item.Split(new string[] { "=" }, StringSplitOptions.RemoveEmptyEntries);
-            paras.Add(items[0], items[1]);
-        }
     }
     <nav style="float:left">
-        @Ajax.ActionLink("返回", actionname, controllername, paras, new AjaxOptions() { UpdateTargetId = "replace ", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+        @Ajax.ActionLink("返回", actionname, controllername, new { pageindex = 1 }, new AjaxOptions() { UpdateTargetId = "replace ", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
     </nav>
     <div id="baseinfo" style="width:100%">
         <div class="spliter">基本信息</div>

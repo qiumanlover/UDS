@@ -147,7 +147,6 @@
     <Compile Include="Models\EmployeeUser.cs" />
     <Compile Include="Models\FilterableClientDataTypeModelValidatorProvider.cs" />
     <Compile Include="Models\Flow.cs" />
-    <Compile Include="Models\FormFlow.cs" />
     <Compile Include="Models\GDZCInfo.cs" />
     <Compile Include="Models\HYJLInfo.cs" />
     <Compile Include="Models\ISQLModel.cs" />
@@ -156,7 +155,6 @@
     <Compile Include="Models\QTJLInfo.cs" />
     <Compile Include="Models\StatisticsList.cs" />
     <Compile Include="Models\SYQMKHInfo.cs" />
-    <Compile Include="Models\SysUser.cs" />
     <Compile Include="Models\XZJXInfo.cs" />
     <Compile Include="Models\ZZInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -623,9 +621,6 @@
     <Content Include="Views\Administrator\DepartmentManager.cshtml" />
     <Content Include="Views\Administrator\PositionManager.cshtml" />
     <Content Include="Views\Administrator\EmployeeManager.cshtml" />
-    <Content Include="Views\Administrator\FlowManager.cshtml" />
-    <Content Include="Views\Administrator\FormQuery.cshtml" />
-    <Content Include="Views\Administrator\ForcePassword.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
