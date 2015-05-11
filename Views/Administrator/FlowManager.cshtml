@@ -23,7 +23,7 @@
         return false;
     }
     function getinfo(id) {
-        ajaxPost("/Administrator/FlowGetInfo", "id=" + id, function onsuccess(text) {
+        ajaxPost("../Administrator/FlowGetInfo", "id=" + id, function onsuccess(text) {
             var data = $.parseJSON(text);
             $("input#Id").val(data.id);
             $("input#formname").val(data.formname);

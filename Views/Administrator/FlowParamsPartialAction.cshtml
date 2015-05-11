@@ -1,0 +1,22 @@
+﻿@model IEnumerable<UDS.Models.FlowParameter>
+
+<hr />
+@using (Ajax.BeginForm("ParameterProc", new AjaxOptions { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "flowparams" }))
+{
+    <ul style="width: 100%;">
+        <li style="float: left; width: 80%; text-align: center">
+            <ul style="list-style: none; width: 100%; float: left; text-align: center; margin-top: 1px">
+                @foreach (var item in Model)
+                {
+                    <li style="width: 100%; text-align: right;">
+                        @item.ParamsMean ：<input type="number" name="@item.Id" value="@item.ParamsValue" />
+                    </li>
+                }
+            </ul>
+        </li>
+        <li style="float: right; width: 15%; text-align: center">
+            <input type="submit" name="submit" value="保存" style="width: 80px; height: 350px;" />
+        </li>
+    </ul>
+}
+

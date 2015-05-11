@@ -16,7 +16,7 @@
         return false;
     }
     function getinfo(id) {
-        ajaxPost("/Administrator/PositionGetInfo", "id=" + id, function onsuccess(text) {
+        ajaxPost("../Administrator/PositionGetInfo", "id=" + id, function onsuccess(text) {
             var data = $.parseJSON(text);
             $("input#Id").val(data.id);
             $("input#PName").val(data.pname);

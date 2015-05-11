@@ -17,7 +17,7 @@
         return false;
     }
     function getinfo(id) {
-        ajaxPost("/Administrator/DepartmentGetInfo", "id=" + id, function(text) {
+        ajaxPost("../Administrator/DepartmentGetInfo", "id=" + id, function(text) {
             var data = $.parseJSON(text);
             $("input#Id").val(data.id);
             $("input#DName").val(data.pname);

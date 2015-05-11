@@ -181,7 +181,7 @@ namespace UDS.Controllers
             if (user != null && user.Id == id)
             {
                 SysUser.ResetPass(id);
-                return JavaScript("alert('当前账号密码已重置, 请重新登录');self.location.href = '/Login/Index';");
+                return JavaScript("alert('当前账号密码已重置, 请重新登录');self.location.href = '../Login/Index';");
             }
             SysUser.ResetPass(id);
             return JavaScript(string.Format("alert('账号：{0} 的密码已重置')", name));
@@ -227,11 +227,24 @@ namespace UDS.Controllers
             return RedirectToAction("FormParameters");
         }
         [HttpPost]
-        public JavaScriptResult JbParameter(string paravalue)
+        public JavaScriptResult ParameterProc()
         {
-            SQLHelper.ExecuteNonQuery(
-                "update T_parameter set paravalue=@value where templateid=2 and paraname='daysbefore'", paravalue);
-            return JavaScript(string.Format("alert('加班申请时间限制设置为: {0}天')", paravalue));
+            foreach (string paramskey in Request.Params.AllKeys)
+            {
+                int keynum;
+                if (int.TryParse(paramskey, out keynum))
+                {
+                    FlowParameter.UpdateParaValueById(keynum, Request.Params[keynum.ToString()]);
+                }
+            }
+            return JavaScript(string.Format("alert('修改成功')"));
+        }
+
+        public ActionResult FlowParamsPartialAction()
+        {
+            ViewData.Model = FlowParameter.GetList();
+            ViewData["typelist"] = Position.GetSelector();
+            return PartialView();
         }
     }
 }

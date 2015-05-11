@@ -4,7 +4,7 @@
     string stylestr = "display:none";
 }
 
-@using (Ajax.BeginForm("FYBXInfo", new { id = ViewBag.Id, isOld = ViewBag.Old }, new AjaxOptions() { UpdateTargetId = "writeview", HttpMethod = "Post", InsertionMode = InsertionMode.Replace }))
+@using (Ajax.BeginForm("FybxInfo", new { id = ViewBag.Id, isOld = ViewBag.Old }, new AjaxOptions() { UpdateTargetId = "writeview", HttpMethod = "Post", InsertionMode = InsertionMode.Replace }))
 {
     <ul id="title">
         <li>用途：</li>

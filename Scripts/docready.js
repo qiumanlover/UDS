@@ -21,12 +21,12 @@ var sh;
 function IsLoad() {
     var uid = document.getElementById("uid").innerHTML;
     var guid = document.getElementById("guid").innerHTML;
-    ajaxPost("/Login/CheckLoad", "uid=" + uid + "&guid=" + guid, function onsuccess(text) {
+    ajaxPost("../Login/CheckLoad", "uid=" + uid + "&guid=" + guid, function onsuccess(text) {
         if (text.indexOf("Error") >= 0) {
             clearInterval(sh);
             //document.write(text);
             alert(('当前账号在其他地方登录, 请重新登录!'));
-            self.location.href = '/Login/Index';
+            self.location.href = '../Login/Index';
         }
     }, function onfail(text) {
         clearInterval(sh);

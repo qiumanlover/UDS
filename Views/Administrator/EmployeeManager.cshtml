@@ -26,7 +26,7 @@
         return false;
     }
     function getinfo(id) {
-        ajaxPost("/Administrator/EmployeeUserGetInfo", "id=" + id, function onsuccess(text) {
+        ajaxPost("../Administrator/EmployeeUserGetInfo", "id=" + id, function onsuccess(text) {
             var data = $.parseJSON(text);
             $("input#id").val(data.id);
             $("input#name").val(data.name);

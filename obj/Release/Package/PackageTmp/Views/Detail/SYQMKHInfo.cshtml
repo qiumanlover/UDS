@@ -3,7 +3,7 @@
     string stylestr = "display:none";
 }
 
-@using (Ajax.BeginForm("SYQMKHInfo", new { id = ViewBag.Id, isOld = ViewBag.Old }, new AjaxOptions() { UpdateTargetId = "writeview", HttpMethod = "Post", InsertionMode = InsertionMode.Replace }))
+@using (Ajax.BeginForm("SyqmkhInfo", new { id = ViewBag.Id, isOld = ViewBag.Old }, new AjaxOptions() { UpdateTargetId = "writeview", HttpMethod = "Post", InsertionMode = InsertionMode.Replace }))
 {
     <ul id="title">
         <li>入职日期：</li>

@@ -1,11 +1,11 @@
 ﻿@model UDS.Models.JBInfo
 
 <script type="text/javascript">
-    function totaltime() {
+    function toltime() {
         var begintime = Date.parse(new Date($("#BeginTime").val().toString().replace(/-/g, "/")));
         var endtime = Date.parse(new Date($("#EndTime").val().toString().replace(/-/g, "/")));
-        var totaltime = endtime - begintime;
-        var time = totaltime * 1.0 / (1000 * 3600);
+        var toltime = endtime - begintime;
+        var time = toltime * 1.0 / (1000 * 3600);
         $("#TotalTime").val(time.toFixed(2));
     }
 </script>

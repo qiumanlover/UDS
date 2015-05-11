@@ -14,7 +14,7 @@ namespace UDS.Models
             User user = HttpContext.Current.Session["user"] as User;
             if (user == null)
             {
-                HttpContext.Current.Response.Redirect("/Login/Index");
+                HttpContext.Current.Response.RedirectToRoute("Default");
             }
         }
 
@@ -23,7 +23,7 @@ namespace UDS.Models
             User user = HttpContext.Current.Session["user"] as User;
             if (user == null)
             {
-                HttpContext.Current.Response.Redirect("/Login/Index");
+                HttpContext.Current.Response.RedirectToRoute("Default");
             }
         }
     }

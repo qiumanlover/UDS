@@ -67,8 +67,6 @@ namespace UDS.Controllers
             {
                 if (!Models.GlobeLoad.CheckLoad(name, uniid))
                 {
-                    //return View();
-                    //return Content(@"<script type='text/javascript'>alert('当前账号在其他地方登录, 请重新登录!');self.location.href = '/Login/Index';</script>");
                     return Content("Error");
                 }
                 else
@@ -93,7 +91,7 @@ namespace UDS.Controllers
                 {
                     user.UpdatePass(Request["newpass"]);
                     Session.Clear();
-                    return Content("<script type='text/javascript'>alert('密码修改成功, 请重新登录!');self.location.href = '/Login/Index';</script>");
+                    return Content("<script type='text/javascript'>alert('密码修改成功, 请重新登录!');self.location.href = '../Login/Index';</script>");
                 }
                 else
                 {

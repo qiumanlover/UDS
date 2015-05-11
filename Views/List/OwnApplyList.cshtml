@@ -18,8 +18,15 @@
                 <li style="width:30%;float:left;text-align:center">
                     @Html.DisplayFor(modelItem => item.WriteTime)
                 </li>
-                <li style="width:15%;float:left;text-align:center">
-                    @Html.DisplayFor(modelItem => item.NextSignName)
+                <li style="width: 15%; float: left; text-align: center">
+                    @if (string.IsNullOrEmpty(item.NextSignName))
+                    {
+                        <label style="width: 15%; visibility: hidden">123</label>
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(modelItem => item.NextSignName)
+                    }
                 </li>
                 <li style="width:20%;float:left;text-align:center">
                     @Html.DisplayFor(modelItem => item.CurrentState)
