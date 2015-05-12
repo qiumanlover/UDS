@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<UDS.Models.FlowParameter>
-
-<hr />
+<form><ul style="visibility: hidden; height: 25px"><li>123</li></ul></form>
+<hr/>
+<br/>
 @using (Ajax.BeginForm("ParameterProc", new AjaxOptions { HttpMethod = "Post", InsertionMode = InsertionMode.Replace, UpdateTargetId = "flowparams" }))
 {
     <ul style="width: 100%;">

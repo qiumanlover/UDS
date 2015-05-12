@@ -136,27 +136,28 @@ namespace UDS.Controllers
             }
         }
 
-        private static int AddForm(int innerid, int formid, int eid, DateTime datetime, string signlist)
+        private static int AddForm(string formtitle, int innerid, int formid, int eid, DateTime datetime, string signlist)
         {
-            SqlParameter[] parameters = { new SqlParameter("@innerid", SqlDbType.Int), new SqlParameter("@formid", SqlDbType.Int), new SqlParameter("@eid", SqlDbType.Int), new SqlParameter("@writetime", SqlDbType.DateTime), new SqlParameter("@signlist", SqlDbType.VarChar), new SqlParameter("@id", SqlDbType.Int) };
+            SqlParameter[] parameters = { new SqlParameter("@innerid", SqlDbType.Int), new SqlParameter("@formid", SqlDbType.Int), new SqlParameter("@eid", SqlDbType.Int), new SqlParameter("@writetime", SqlDbType.DateTime), new SqlParameter("@signlist", SqlDbType.VarChar), new SqlParameter("@id", SqlDbType.Int), new SqlParameter("@formtitle", SqlDbType.NVarChar) };
             parameters[0].Value = innerid;
             parameters[1].Value = formid;
             parameters[2].Value = eid;
             parameters[3].Value = datetime;
             parameters[4].Value = signlist;
             parameters[5].Direction = ParameterDirection.Output;
+            parameters[6].Value = formtitle;
             SQLHelper.ProcNoQuery("usp_WriteSave", parameters);
             return Convert.ToInt32(parameters[5].Value);
         }
 
-        private static int UpdateForm(int formflowid)
+        private static int UpdateFormTitle(int formflowid, string title)
         {
-            return SQLHelper.ProcNoQuery("usp_WriteModify", new SqlParameter("@id", formflowid), new SqlParameter("time", DateTime.Now));
+            return SQLHelper.ProcNoQuery("usp_WriteModify", new SqlParameter("@id", formflowid), new SqlParameter("time", DateTime.Now), new SqlParameter("@formtitle", title));
         }
 
-        private static int UpdateForm(int formflowid, string signlist)
+        private static int UpdateFormSignList(int formflowid, string signlist, string title)
         {
-            return SQLHelper.ProcNoQuery("usp_WriteModifySignList", new SqlParameter("@id", formflowid), new SqlParameter("@time", DateTime.Now), new SqlParameter("@signlist", signlist));
+            return SQLHelper.ProcNoQuery("usp_WriteModifySignList", new SqlParameter("@id", formflowid), new SqlParameter("@time", DateTime.Now), new SqlParameter("@signlist", signlist), new SqlParameter("@formtitle", title));
         }
 
         private static List<string> CalcSignList(int flowid, int eid)
@@ -255,7 +256,9 @@ namespace UDS.Controllers
                     DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
                     JBInfo.UpdateInfo(jbinfo, innerid);
-                    UpdateForm(ffid);
+                    string formtitle = jbinfo.Reason.Substring(0,
+                            jbinfo.Reason.Length < 50 ? jbinfo.Reason.Length : 50);
+                    UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
                     return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
@@ -271,7 +274,9 @@ namespace UDS.Controllers
                         List<string> signposlist = CalcSignList(flowid, eid);
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
-                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        string formtitle = jbinfo.Reason.Substring(0,
+                            jbinfo.Reason.Length < 50 ? jbinfo.Reason.Length : 50);
+                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
                         ViewBag.Id = formflowid;
                     }
@@ -348,7 +353,9 @@ namespace UDS.Controllers
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
-                        UpdateForm(ffid, signlist);
+                        string formtitle = qjinfo.Reason.Substring(0,
+                            qjinfo.Reason.Length < 50 ? qjinfo.Reason.Length : 50);
+                        UpdateFormSignList(ffid, signlist, formtitle);
                     }
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
@@ -375,7 +382,9 @@ namespace UDS.Controllers
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
-                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        string formtitle = qjinfo.Reason.Substring(0,
+                            qjinfo.Reason.Length < 50 ? qjinfo.Reason.Length : 50);
+                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
                         ViewBag.Id = formflowid;
                     }
@@ -423,7 +432,9 @@ namespace UDS.Controllers
                     DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
                     GCInfo.UpdateInfo(gcinfo, innerid);
-                    UpdateForm(ffid);
+                    string formtitle = gcinfo.Reason.Substring(0,
+                            gcinfo.Reason.Length < 50 ? gcinfo.Reason.Length : 50);
+                    UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
                     return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
@@ -439,7 +450,9 @@ namespace UDS.Controllers
                         List<string> signposlist = CalcSignList(flowid, eid);
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
-                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        string formtitle = gcinfo.Reason.Substring(0,
+                            gcinfo.Reason.Length < 50 ? gcinfo.Reason.Length : 50);
+                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
                         ViewBag.Id = formflowid;
                     }
@@ -509,7 +522,8 @@ namespace UDS.Controllers
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
-                        UpdateForm(ffid, signlist);
+                        string formtitle = fybxinfo.Usage.Substring(0, fybxinfo.Usage.Length < 50 ? fybxinfo.Usage.Length : 50);
+                        UpdateFormSignList(ffid, signlist, formtitle);
                     }
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
@@ -537,7 +551,8 @@ namespace UDS.Controllers
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
-                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        string formtitle = fybxinfo.Usage.Substring(0, fybxinfo.Usage.Length < 50 ? fybxinfo.Usage.Length : 50);
+                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
                         ViewBag.Id = formflowid;
                     }
@@ -584,7 +599,8 @@ namespace UDS.Controllers
                     DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
                     SYQMKHInfo.UpdateInfo(syqmkhinfo, innerid);
-                    UpdateForm(ffid);
+                    string formtitle = string.Format("试用期满考核{0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm"));
+                    UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
                     return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
@@ -600,7 +616,8 @@ namespace UDS.Controllers
                         List<string> signposlist = CalcSignList(flowid, eid);
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
-                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        string formtitle = string.Format("试用期满考核{0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm"));
+                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
                         ViewBag.Id = formflowid;
                     }
@@ -647,7 +664,9 @@ namespace UDS.Controllers
                     DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
                     Models.HYJLInfo.UpdateInfo(hyjlinfo, innerid);
-                    UpdateForm(ffid);
+                    string formtitle = hyjlinfo.Topic.Substring(0,
+                            hyjlinfo.Topic.Length < 50 ? hyjlinfo.Topic.Length : 50);
+                    UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
                     return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
@@ -664,7 +683,8 @@ namespace UDS.Controllers
                         List<string> signposlist = CalcSignList(flowid, eid);
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
-                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        string formtitle = hyjlinfo.Topic.Substring(0, hyjlinfo.Topic.Length < 50 ? hyjlinfo.Topic.Length : 50);
+                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
                         ViewBag.Id = formflowid;
                     }
@@ -711,7 +731,8 @@ namespace UDS.Controllers
                     DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
                     Models.CommonModelInfo.UpdateInfo(commonmodelinfo, innerid);
-                    UpdateForm(ffid);
+                    string formtitle = DateTime.Now.ToString("yyyy/MM/dd HH:mm");
+                    UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
                     return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
@@ -727,7 +748,8 @@ namespace UDS.Controllers
                         List<string> signposlist = CalcSignList(flowid, eid);
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
-                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        string formtitle = DateTime.Now.ToString("yyyy/MM/dd HH:mm");
+                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
                         ViewBag.Id = formflowid;
                     }
@@ -776,7 +798,8 @@ namespace UDS.Controllers
                     DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
                     Models.QTJLInfo.UpdateInfo(qtjlinfo, innerid);
-                    UpdateForm(ffid);
+                    string formtitle = string.Format("洽谈记录{0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm"));
+                    UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
                     return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
@@ -792,7 +815,8 @@ namespace UDS.Controllers
                         List<string> signposlist = CalcSignList(flowid, eid);
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
-                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        string formtitle = string.Format("洽谈记录{0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm"));
+                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
                         ViewBag.Id = formflowid;
                     }
@@ -839,7 +863,8 @@ namespace UDS.Controllers
                     DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
                     Models.XZJXInfo.UpdateInfo(xzjxinfo, innerid);
-                    UpdateForm(ffid);
+                    string formtitle = string.Format("薪资绩效{0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm"));
+                    UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
                     return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
@@ -855,7 +880,8 @@ namespace UDS.Controllers
                         List<string> signposlist = CalcSignList(flowid, eid);
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
-                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        string formtitle = string.Format("薪资绩效{0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm"));
+                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
                         ViewBag.Id = formflowid;
                     }
@@ -904,7 +930,8 @@ namespace UDS.Controllers
                     DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", ffid));
                     int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
                     Models.PXInfo.UpdateInfo(pxinfo, innerid);
-                    UpdateForm(ffid);
+                    string formtitle = pxinfo.Title.Substring(0, pxinfo.Title.Length < 50 ? pxinfo.Title.Length : 50);
+                    UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
                     return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
@@ -920,7 +947,8 @@ namespace UDS.Controllers
                         List<string> signposlist = CalcSignList(flowid, eid);
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
-                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        string formtitle = pxinfo.Title.Substring(0, pxinfo.Title.Length < 50 ? pxinfo.Title.Length : 50);
+                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
                         ViewBag.Id = formflowid;
                     }
@@ -987,7 +1015,8 @@ namespace UDS.Controllers
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
-                        UpdateForm(ffid, signlist);
+                        string formtitle = gdzcinfo.DeviceName.Substring(0, gdzcinfo.DeviceName.Length < 50 ? gdzcinfo.DeviceName.Length : 50);
+                        UpdateFormSignList(ffid, signlist, formtitle);
                     }
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
@@ -1014,7 +1043,8 @@ namespace UDS.Controllers
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
-                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        string formtitle = gdzcinfo.DeviceName.Substring(0, gdzcinfo.DeviceName.Length < 50 ? gdzcinfo.DeviceName.Length : 50);
+                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
                         ViewBag.Id = formflowid;
                     }
@@ -1081,7 +1111,8 @@ namespace UDS.Controllers
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
-                        UpdateForm(ffid, signlist);
+                        string formtitle = zzinfo.Reason.Substring(0, zzinfo.Reason.Length < 50 ? zzinfo.Reason.Length : 50);
+                        UpdateFormSignList(ffid, signlist, formtitle);
                     }
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
@@ -1108,7 +1139,8 @@ namespace UDS.Controllers
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
-                        int formflowid = AddForm(innerid, flowid, eid, DateTime.Now, signlist);
+                        string formtitle = zzinfo.Reason.Substring(0, zzinfo.Reason.Length < 50 ? zzinfo.Reason.Length : 50);
+                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
 
                         ViewBag.Old = 1;
                         ViewBag.Id = formflowid;

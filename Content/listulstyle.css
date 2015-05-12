@@ -1,0 +1,18 @@
+﻿#links ul {
+    list-style-type: none;
+    width: 100%;
+    margin-bottom: 2px;
+    display: block;
+    text-decoration: none;
+}
+
+* html #links li a {
+    width: 100%;
+}
+
+#links ul:hover {
+    background: rgb(236, 228, 228);
+}
+#links a:hover {
+    background: rgb(126, 241, 230);
+}

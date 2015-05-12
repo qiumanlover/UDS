@@ -26,11 +26,11 @@ namespace UDS.Models
                 filterContext.Controller.ViewBag.UrlRefer = filterContext.HttpContext.Request.UrlReferrer;
                 if (httpException.GetHttpCode() == 404)
                 {
-                    filterContext.HttpContext.Response.Redirect("~/home/notfound");
+                    filterContext.HttpContext.Response.Redirect("~/Login/Index");
                 }
                 else if (httpException.GetHttpCode() == 500)
                 {
-                    filterContext.HttpContext.Response.Redirect("~/home/internalError");
+                    filterContext.HttpContext.Response.Redirect("~/Login/Index");
                 }
             }
             //写入日志 记录

@@ -1,31 +1,34 @@
 ﻿@model IEnumerable<UDS.Models.InfoList>
+<link href="~/Content/listulstyle.css" rel="stylesheet" />
 <div style="height:500px">
-    <ul style="list-style:none; width:100%; min-width:600px;">
-        <li style="width:25%; float:left; text-align:center">流程名称</li>
-        <li style="width:20%; float:left; text-align:center">申请人</li>
-        <li style="width:25%; float:left; text-align:center">填写时间</li>
-        <li style="width:20%; float:left; text-align:center">待签核人</li>
-        <li style="width:10%; float:left; text-align:center"></li>
+    <ul style="list-style: none; width: 100%; min-width: 600px;">
+        <li style="width: 35%; float: left; text-align: center">文档标题</li>
+        <li style="width: 20%; float: left; text-align: center">流程名称</li>
+        <li style="width: 10%; float: left; text-align: center">申请人</li>
+        <li style="width: 20%; float: left; text-align: center">填写时间</li>
+        <li style="width: 10%; float: left; text-align: center">待签核人</li>
     </ul>
-    <div>
+    <br />
+    <div id="links">
         @foreach (var item in Model)
         {
             <ul style="list-style:none; width:100%; min-width:600px;">
-                <li style=" width:25%; float:left; text-align:center">
+                <li style="width:35%; float:left; text-align:center">
+                    @Ajax.ActionLink(item.FormTitle, "DetailContainer", "Detail", new { id = item.Id, show = 0, canSign = 1, backid = 4 }, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+                </li>
+                <li style=" width:20%; float:left; text-align:center">
                 @Html.DisplayFor(modelItem => item.FormName)
                 </li>
-                <li style="width:20%; float:left; text-align:center">
+                <li style="width:10%; float:left; text-align:center">
                     @Html.DisplayFor(modelItem => item.EmployeeName)
                 </li>
-                <li style="width:25%; float:left; text-align:center">
+                <li style="width:20%; float:left; text-align:center">
                     @Html.DisplayFor(modelItem => item.WriteTime)
                 </li>
-                <li style="width:20%; float:left; text-align:center">
+                <li style="width: 10%; float: left; text-align: center">
                     @Html.DisplayFor(model => item.NextSignName)
                 </li>
-                <li style="width:10%; float:left; text-align:center">
-                    @Ajax.ActionLink("进入", "DetailContainer", "Detail", new { id = item.Id, show = 0, canSign = 1, backid = 4 }, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
-                </li>
+                <li style="clear: both"></li>
             </ul>
         }
     </div>

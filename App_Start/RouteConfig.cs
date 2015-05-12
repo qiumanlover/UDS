@@ -18,6 +18,11 @@ namespace UDS
                 url: "{controller}/{action}/{uid}",
                 defaults: new { controller = "Login", action = "Index", uid = UrlParameter.Optional }
             );
+
+            routes.MapRoute(
+                name: "Error",
+                url: "Login/Index"
+            );
         }
     }
 }

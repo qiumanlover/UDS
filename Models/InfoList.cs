@@ -9,6 +9,7 @@ namespace UDS.Models
     public class InfoList
     {
         public int Id { get; set; }
+        public string FormTitle { get; set; }
         public string FormName { get; set; }
         public string EmployeeName { get; set; }
         public string WriteTime { get; set; }
@@ -38,6 +39,9 @@ namespace UDS.Models
                         break;
                     case "state":
                         this.CurrentState = (row["state"] ?? "").ToString();
+                        break;
+                    case "formtitle":
+                        this.FormTitle = (row["formtitle"] ?? "").ToString();
                         break;
                     default:
                         break;
