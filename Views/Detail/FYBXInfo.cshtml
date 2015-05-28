@@ -4,7 +4,7 @@
     string stylestr = "display:none";
 }
 
-@using (Ajax.BeginForm("FybxInfo", new { id = ViewBag.Id, isOld = ViewBag.Old }, new AjaxOptions() { UpdateTargetId = "writeview", HttpMethod = "Post", InsertionMode = InsertionMode.Replace }))
+@using (Ajax.BeginForm("FybxInfo", new { id = ViewBag.Id, isOld = ViewBag.Old }, new AjaxOptions() { UpdateTargetId = "replace", HttpMethod = "Post", InsertionMode = InsertionMode.Replace }))
 {
     <ul id="title">
         <li>用途：</li>
@@ -50,13 +50,13 @@
     if (ViewBag.Display == 1)
     {
         stylestr = "width:90%; text-align:right;";
-       <script type="text/javascript" charset="utf-8">
+        <script type="text/javascript" charset="utf-8">
             var content = $("input#AttachContent").val();
             var editorOption = {
                 initialContent: content,
-                initialFrameHeight: 300,
-                initialFrameWidth: 810,
-                autoHeightEnabled: false,
+                initialFrameHeight: 330,
+                initialFrameWidth: 840,
+                autoHeightEnabled: false
             };
             var editor = new baidu.editor.ui.Editor(editorOption);
             editor.render('editor');
@@ -65,8 +65,8 @@
             });
         </script>
         <div id="btnContainer">
-            <input type="submit" value="保存" id="save" name="save" />
-            <input type="submit" value="发送" id="send" name="send" />
+            <input class="button button-border button-primary button-rounded" type="submit" value="保存" id="save" name="save" />
+            <input class="button button-border button-primary button-rounded" type="submit" value="发送" id="send" name="send" />
         </div>
     }
 }

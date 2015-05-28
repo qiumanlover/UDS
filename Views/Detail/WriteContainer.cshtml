@@ -6,8 +6,12 @@
     }
 </head>
 <body>
-    <div style="float:left">
-        @Ajax.ActionLink("返回", "WriteList", "List", new AjaxOptions() { UpdateTargetId = "replace ", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+    <div style="float: left">
+        @Ajax.ActionLink("返回", "WriteList", "List", new { style = "text-decoration:none;" }, new AjaxOptions() { UpdateTargetId = "replace ", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+    </div>
+    <div style="margin-bottom: 15px; text-align: center; width: 100%; font-size: 22px;">
+        @ViewBag.formname
+        <hr style="margin-top: 10px;" />
     </div>
     <div id="writeview">
         @{

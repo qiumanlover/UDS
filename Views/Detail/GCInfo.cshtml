@@ -1,6 +1,6 @@
 ﻿@model UDS.Models.GCInfo
 
-@using (Ajax.BeginForm("GcInfo", new { id = ViewBag.Id, isOld = ViewBag.Old }, new AjaxOptions() { UpdateTargetId = "writeview", HttpMethod = "Post", InsertionMode = InsertionMode.Replace }))
+@using (Ajax.BeginForm("GcInfo", new { id = ViewBag.Id, isOld = ViewBag.Old }, new AjaxOptions() { UpdateTargetId = "replace", HttpMethod = "Post", InsertionMode = InsertionMode.Replace }))
 {
     <ul id="title">
         <li>开始时间：</li>
@@ -26,8 +26,8 @@
     if (ViewBag.Display == 1)
     {
         <div id="btnContainer">
-            <input type="submit" value="保存" id="save" name="save" />
-            <input type="submit" value="发送" id="send" name="send" />
+            <input class="button button-border button-primary button-rounded" type="submit" value="保存" id="save" name="save" />
+            <input class="button button-border button-primary button-rounded" type="submit" value="发送" id="send" name="send" />
         </div>
     }
 }

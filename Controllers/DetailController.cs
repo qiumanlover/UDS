@@ -60,6 +60,11 @@ namespace UDS.Controllers
                     ViewBag.ControllerName = "Administrator";
                     ViewData["paras"] = Request["paras"];
                     break;
+                case 6:
+                    ViewBag.ActionName = "SubsistenceList";
+                    ViewBag.ControllerName = "List";
+                    ViewData["paras"] = Request["paras"];
+                    break;
                 default:
                     ViewBag.ActionName = "OwnApplyList";
                     ViewBag.ControllerName = "List";
@@ -74,7 +79,9 @@ namespace UDS.Controllers
         {
             DataTable dt = SQLHelper.ProcDataTable("usp_WriteDetail", new SqlParameter("@id", flowid));
             string pagename = dt.Rows[0]["pagename"].ToString();
+            string formname = dt.Rows[0]["formname"].ToString();
             ViewBag.pageName = pagename;
+            ViewBag.formname = formname;
             ViewBag.Id = flowid;
             return PartialView();
         }
@@ -84,7 +91,9 @@ namespace UDS.Controllers
             DataTable dtPreMain = SQLHelper.ProcDataTable("usp_PreMainInfo", new SqlParameter("@id", formflowid));
             int innerid = Convert.ToInt32(dtPreMain.Rows[0]["forminnerid"]);
             string pagename = dtPreMain.Rows[0]["pagename"].ToString();
+            string formname = dtPreMain.Rows[0]["formname"].ToString();
             ViewBag.PageName = pagename;
+            ViewBag.formname = formname;
             ViewBag.InnerId = innerid;
             ViewBag.Show = show;
             ViewBag.isOld = isOld;
@@ -261,13 +270,14 @@ namespace UDS.Controllers
                     UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
                 else if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
                     int innerid = JBInfo.AddInfo(jbinfo);
                     int flowid = int.Parse(Request["id"]);
                     var user = Session["user"] as User;
+                    int ffid = 0;
                     if (user != null)
                     {
                         int eid = user.Eid;
@@ -276,12 +286,12 @@ namespace UDS.Controllers
                         string signlist = string.Join("|", signposlist.ToArray());
                         string formtitle = jbinfo.Reason.Substring(0,
                             jbinfo.Reason.Length < 50 ? jbinfo.Reason.Length : 50);
-                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
+                        ffid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
-                        ViewBag.Id = formflowid;
+                        ViewBag.Id = ffid;
                     }
                     ViewBag.Display = 1;
-                    return PartialView();
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
             }
             else if (Request["send"] != null)
@@ -292,7 +302,7 @@ namespace UDS.Controllers
                 int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
-                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
+                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1, paras = "pageindex=1" });
             }
             else if (Request["save"] == null && Request["send"] == null)
             {//用于显示表单详细信息的处理逻辑
@@ -359,13 +369,14 @@ namespace UDS.Controllers
                     }
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
                 if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
                     int innerid = QJInfo.AddInfo(qjinfo);
                     int flowid = int.Parse(Request["id"]);
                     var user = Session["user"] as User;
+                    int ffid = 0;
                     if (user != null)
                     {
                         int eid = user.Eid;
@@ -384,12 +395,12 @@ namespace UDS.Controllers
                         string signlist = string.Join("|", signposlist.ToArray());
                         string formtitle = qjinfo.Reason.Substring(0,
                             qjinfo.Reason.Length < 50 ? qjinfo.Reason.Length : 50);
-                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
+                        ffid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
-                        ViewBag.Id = formflowid;
+                        ViewBag.Id = ffid;
                     }
                     ViewBag.Display = 1;
-                    return PartialView();
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
             }
             else if (Request["send"] != null)
@@ -400,7 +411,7 @@ namespace UDS.Controllers
                 int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
-                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
+                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1, paras = "pageindex=1" });
             }
             else if (Request["save"] == null && Request["send"] == null)
             {//用于显示表单详细信息的处理逻辑
@@ -437,13 +448,14 @@ namespace UDS.Controllers
                     UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
                 if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
                     int innerid = GCInfo.AddInfo(gcinfo);
                     int flowid = int.Parse(Request["id"]);
                     var user = Session["user"] as User;
+                    int ffid = 0;
                     if (user != null)
                     {
                         int eid = user.Eid;
@@ -452,12 +464,12 @@ namespace UDS.Controllers
                         string signlist = string.Join("|", signposlist.ToArray());
                         string formtitle = gcinfo.Reason.Substring(0,
                             gcinfo.Reason.Length < 50 ? gcinfo.Reason.Length : 50);
-                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
+                        ffid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
-                        ViewBag.Id = formflowid;
+                        ViewBag.Id = ffid;
                     }
                     ViewBag.Display = 1;
-                    return PartialView();
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
             }
             else if (Request["send"] != null)
@@ -468,7 +480,7 @@ namespace UDS.Controllers
                 int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
-                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
+                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1, paras = "pageindex=1" });
             }
             else if (Request["save"] == null && Request["send"] == null)
             {//用于显示表单详细信息的处理逻辑
@@ -527,7 +539,7 @@ namespace UDS.Controllers
                     }
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
                 if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
@@ -535,6 +547,7 @@ namespace UDS.Controllers
                     int innerid = FYBXInfo.AddInfo(fybxinfo);
                     int flowid = int.Parse(Request["id"]);
                     var user = Session["user"] as User;
+                    int ffid = 0;
                     if (user != null)
                     {
                         int eid = user.Eid;
@@ -552,12 +565,12 @@ namespace UDS.Controllers
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
                         string formtitle = fybxinfo.Usage.Substring(0, fybxinfo.Usage.Length < 50 ? fybxinfo.Usage.Length : 50);
-                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
+                        ffid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
-                        ViewBag.Id = formflowid;
+                        ViewBag.Id = ffid;
                     }
                     ViewBag.Display = 1;
-                    return PartialView();
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
             }
             else if (Request["send"] != null)
@@ -568,7 +581,7 @@ namespace UDS.Controllers
                 int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
-                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
+                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1, paras = "pageindex=1" });
             }
             else if (Request["save"] == null && Request["send"] == null)
             {//用于显示表单详细信息的处理逻辑
@@ -603,13 +616,14 @@ namespace UDS.Controllers
                     UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
                 else if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
                     int innerid = SYQMKHInfo.AddInfo(syqmkhinfo);
                     int flowid = int.Parse(Request["id"]);
                     var user = Session["user"] as User;
+                    int ffid = 0;
                     if (user != null)
                     {
                         int eid = user.Eid;
@@ -617,12 +631,12 @@ namespace UDS.Controllers
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
                         string formtitle = string.Format("试用期满考核{0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm"));
-                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
+                        ffid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
-                        ViewBag.Id = formflowid;
+                        ViewBag.Id = ffid;
                     }
                     ViewBag.Display = 1;
-                    return PartialView();
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
             }
             else if (Request["send"] != null)
@@ -633,7 +647,7 @@ namespace UDS.Controllers
                 int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
-                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
+                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1, paras = "pageindex=1" });
             }
             else if (Request["save"] == null && Request["send"] == null)
             {//用于显示表单详细信息的处理逻辑
@@ -669,7 +683,7 @@ namespace UDS.Controllers
                     UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
                 else if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
@@ -677,6 +691,7 @@ namespace UDS.Controllers
                     int innerid = Models.HYJLInfo.AddInfo(hyjlinfo);
                     int flowid = int.Parse(Request["id"]);
                     var user = Session["user"] as User;
+                    int ffid = 0;
                     if (user != null)
                     {
                         int eid = user.Eid;
@@ -684,12 +699,12 @@ namespace UDS.Controllers
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
                         string formtitle = hyjlinfo.Topic.Substring(0, hyjlinfo.Topic.Length < 50 ? hyjlinfo.Topic.Length : 50);
-                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
+                        ffid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
-                        ViewBag.Id = formflowid;
+                        ViewBag.Id = ffid;
                     }
                     ViewBag.Display = 1;
-                    return PartialView();
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
             }
             else if (Request["send"] != null)
@@ -700,7 +715,7 @@ namespace UDS.Controllers
                 int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
-                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
+                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1, paras = "pageindex=1" });
             }
             else if (Request["save"] == null && Request["send"] == null)
             {//用于显示表单详细信息的处理逻辑
@@ -735,13 +750,14 @@ namespace UDS.Controllers
                     UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
                 else if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
                     int innerid = Models.CommonModelInfo.AddInfo(commonmodelinfo);
                     int flowid = int.Parse(Request["id"]);
                     var user = Session["user"] as User;
+                    int ffid = 0;
                     if (user != null)
                     {
                         int eid = user.Eid;
@@ -749,12 +765,12 @@ namespace UDS.Controllers
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
                         string formtitle = DateTime.Now.ToString("yyyy/MM/dd HH:mm");
-                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
+                        ffid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
-                        ViewBag.Id = formflowid;
+                        ViewBag.Id = ffid;
                     }
                     ViewBag.Display = 1;
-                    return PartialView();
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
             }
             else if (Request["send"] != null)
@@ -765,7 +781,7 @@ namespace UDS.Controllers
                 int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
-                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
+                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1, paras = "pageindex=1" });
             }
             else if (Request["save"] == null && Request["send"] == null)
             {//用于显示表单详细信息的处理逻辑
@@ -809,6 +825,7 @@ namespace UDS.Controllers
                     int innerid = Models.QTJLInfo.AddInfo(qtjlinfo);
                     int flowid = int.Parse(Request["id"]);
                     var user = Session["user"] as User;
+                    int ffid = 0;
                     if (user != null)
                     {
                         int eid = user.Eid;
@@ -816,12 +833,12 @@ namespace UDS.Controllers
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
                         string formtitle = string.Format("洽谈记录{0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm"));
-                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
+                        ffid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
-                        ViewBag.Id = formflowid;
+                        ViewBag.Id = ffid;
                     }
                     ViewBag.Display = 1;
-                    return PartialView();
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
             }
             else if (Request["send"] != null)
@@ -832,7 +849,7 @@ namespace UDS.Controllers
                 int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
-                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
+                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1, paras = "pageindex=1" });
             }
             else if (Request["save"] == null && Request["send"] == null)
             {//用于显示表单详细信息的处理逻辑
@@ -867,13 +884,14 @@ namespace UDS.Controllers
                     UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
                 else if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
                     int innerid = Models.XZJXInfo.AddInfo(xzjxinfo);
                     int flowid = int.Parse(Request["id"]);
                     var user = Session["user"] as User;
+                    int ffid = 0;
                     if (user != null)
                     {
                         int eid = user.Eid;
@@ -881,12 +899,12 @@ namespace UDS.Controllers
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
                         string formtitle = string.Format("薪资绩效{0}", DateTime.Now.ToString("yyyy/MM/dd HH:mm"));
-                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
+                        ffid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
-                        ViewBag.Id = formflowid;
+                        ViewBag.Id = ffid;
                     }
                     ViewBag.Display = 1;
-                    return PartialView();
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
             }
             else if (Request["send"] != null)
@@ -897,7 +915,7 @@ namespace UDS.Controllers
                 int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
-                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
+                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1, paras = "pageindex=1" });
             }
             else if (Request["save"] == null && Request["send"] == null)
             {//用于显示表单详细信息的处理逻辑
@@ -934,13 +952,14 @@ namespace UDS.Controllers
                     UpdateFormTitle(ffid, formtitle);
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
                 else if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
                     int innerid = Models.PXInfo.AddInfo(pxinfo);
                     int flowid = int.Parse(Request["id"]);
                     var user = Session["user"] as User;
+                    int ffid = 0;
                     if (user != null)
                     {
                         int eid = user.Eid;
@@ -948,12 +967,12 @@ namespace UDS.Controllers
                         signposlist.RemoveAt(0);
                         string signlist = string.Join("|", signposlist.ToArray());
                         string formtitle = pxinfo.Title.Substring(0, pxinfo.Title.Length < 50 ? pxinfo.Title.Length : 50);
-                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
+                        ffid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
-                        ViewBag.Id = formflowid;
+                        ViewBag.Id = ffid;
                     }
                     ViewBag.Display = 1;
-                    return PartialView();
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
             }
             else if (Request["send"] != null)
@@ -964,7 +983,7 @@ namespace UDS.Controllers
                 int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
-                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
+                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1, paras = "pageindex=1" });
             }
             else if (Request["save"] == null && Request["send"] == null)
             {//用于显示表单详细信息的处理逻辑
@@ -1020,13 +1039,14 @@ namespace UDS.Controllers
                     }
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
                 if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
                     int innerid = Models.GDZCInfo.AddInfo(gdzcinfo);
                     int flowid = int.Parse(Request["id"]);
                     var user = Session["user"] as User;
+                    int ffid = 0;
                     if (user != null)
                     {
                         int eid = user.Eid;
@@ -1044,12 +1064,12 @@ namespace UDS.Controllers
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
                         string formtitle = gdzcinfo.DeviceName.Substring(0, gdzcinfo.DeviceName.Length < 50 ? gdzcinfo.DeviceName.Length : 50);
-                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
+                        ffid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
                         ViewBag.Old = 1;
-                        ViewBag.Id = formflowid;
+                        ViewBag.Id = ffid;
                     }
                     ViewBag.Display = 1;
-                    return PartialView();
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
             }
             else if (Request["send"] != null)
@@ -1060,7 +1080,7 @@ namespace UDS.Controllers
                 int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
-                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
+                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1, paras = "pageindex=1" });
             }
             else if (Request["save"] == null && Request["send"] == null)
             {//用于显示表单详细信息的处理逻辑
@@ -1116,13 +1136,15 @@ namespace UDS.Controllers
                     }
                     ViewBag.Old = 1;
                     ViewBag.Id = ffid;
-                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid });
+                    ViewBag.Display = 1;
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras="pageindex=1" });
                 }
                 if (isOld.Equals("0"))
                 {//新建表单时的保存处理逻辑
                     int innerid = Models.ZZInfo.AddInfo(zzinfo);
                     int flowid = int.Parse(Request["id"]);
                     User user = Session["user"] as User;
+                    int ffid = 0;
                     if (user != null)
                     {
                         int eid = user.Eid;
@@ -1140,13 +1162,13 @@ namespace UDS.Controllers
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
                         string formtitle = zzinfo.Reason.Substring(0, zzinfo.Reason.Length < 50 ? zzinfo.Reason.Length : 50);
-                        int formflowid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
+                        ffid = AddForm(formtitle, innerid, flowid, eid, DateTime.Now, signlist);
 
                         ViewBag.Old = 1;
-                        ViewBag.Id = formflowid;
+                        ViewBag.Id = ffid;
                     }
                     ViewBag.Display = 1;
-                    return PartialView();
+                    return RedirectToAction("DraftContainer", "Detail", new { show = 1, isOld = 1, formflowid = ffid, paras = "pageindex=1" });
                 }
             }
             else if (Request["send"] != null)
@@ -1157,7 +1179,7 @@ namespace UDS.Controllers
                 int nextid = int.Parse(signlist.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 SQLHelper.ProcNoQuery("usp_Send", new SqlParameter("@sendtime", DateTime.Now), new SqlParameter("@nextid", nextid), new SqlParameter("@id", formflowid));
                 ViewBag.Display = 1;
-                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1 });
+                return RedirectToAction("OwnApplyList", "List", new { pageindex = 1, paras="pageindex=1" });
             }
             else if (Request["save"] == null && Request["send"] == null)
             {//用于显示表单详细信息的处理逻辑

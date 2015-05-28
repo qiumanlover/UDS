@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width" charset="utf-8" />
     <title>@ViewBag.Title</title>
     <link href="~/Content/main.css" type="text/css" rel="stylesheet" />
-    <script src="~/Scripts/diffcolorlist.js"></script>
-    <link href="~/Content/style.css" rel="stylesheet" media="screen" type="text/css" />
-    <link href="~/Content/diffcolorlist.css" rel="stylesheet" />
+    <link href="~/Content/menustyle.css" rel="stylesheet" media="screen" type="text/css" />
+    <link href="~/Content/buttons.css" rel="stylesheet" />
+@*<script src="~/Scripts/diffcolorlist.js"></script>
+    <link href="~/Content/diffcolorlist.css" rel="stylesheet" />*@
 </head>
 <body id="mainbody">
     <div id="page">
-        <div id="header">            
+        <div id="header">
             <div id="nav">
                 @RenderSection("nav", required: false)
             </div>
@@ -42,8 +43,7 @@
             initialFrameHeight: 400
         };
         var editor = new baidu.editor.ui.Editor(editorOption);
-        //editor.render('editor');
     </script>
-    <link href="~/Content/detailInputStyle.css" rel="stylesheet" />
+    <link href="~/Content/detailInputStyle.css" rel="stylesheet">
 </body>
 </html>

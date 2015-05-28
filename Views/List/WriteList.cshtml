@@ -6,10 +6,26 @@
             }
         </table>
     </div>*@
+@{
+    Dictionary<int, string> dic = ViewBag.flowList as Dictionary<int, string>;
+    var leftHalf = dic.Where((r, index) => index % 2 == 0);
+    var rightHalf = dic.Where((r, index) => index % 2 != 0);
+    int i = 0;
+}
+<div style="width: 25%; float: left; text-align: center; margin-left: 25%">
+    <ul>
+        @foreach (KeyValuePair<int, string> item in leftHalf)
+        {
+            <li style="margin-left: 30px; margin-top: 20px">@Ajax.ActionLink(item.Value, "WriteContainer", "Detail", new {flowid = item.Key}, new AjaxOptions() {UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post"})</li>
+        }
+    </ul>
+</div>
 
-<div style="width:100%; float:left">
-    @foreach (KeyValuePair<int, string> item in ViewBag.flowList)
-    {
-        <div style="float:left; margin-left:30px; margin-top:20px">@Ajax.ActionLink(item.Value, "WriteContainer", "Detail", new { flowid = item.Key }, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })</div>
-    }
+<div style="width: 25%; float: right; text-align: center; margin-right: 25%">
+    <ul>
+        @foreach (KeyValuePair<int, string> item in rightHalf)
+        {
+            <li style="margin-left: 30px; margin-top: 20px">@Ajax.ActionLink(item.Value, "WriteContainer", "Detail", new { flowid = item.Key }, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })</li>
+        }
+    </ul>
 </div>

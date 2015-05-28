@@ -56,7 +56,11 @@ namespace UDS.Controllers
                 }
                 ViewData.Model = data;
                 ViewBag.pageCount = pagecount;
-                ViewBag.pageIndex = pageindex;
+                ViewBag.pageIndex = pagecount == 0 ? 0 : pageindex;
+                ViewBag.frtIndex = pagecount == 0 ? 0 : 1;
+                ViewBag.preIndex = pagecount == 0 ? 0 : (pageindex == 1 ? 1 : pageindex - 1);
+                ViewBag.nxtIndex = pagecount == 0 ? 0 : (pageindex == pagecount ? pageindex : pageindex + 1);
+                ViewData["paras"] = string.Format("pageindex={0}", pageindex);
             }
             return PartialView();
         }

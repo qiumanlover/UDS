@@ -34,7 +34,7 @@ namespace UDS.Models
 
         internal static int UpdateInfo(ZZInfo zzinfo, int id)
         {
-            object obj = SQLHelper.ExecuteNonQuery("update T_zz set money=@money, reason=@reason, predate=@predate, singleprice=@singleprice, totalprice=@totalprice, needdate=@needdate where id=@id", zzinfo.Money, zzinfo.Reason, zzinfo.PreDate, id);
+            object obj = SQLHelper.ExecuteNonQuery("update T_zz set money=@money, reason=@reason, predate=@predate where id=@id", zzinfo.Money, zzinfo.Reason, zzinfo.PreDate, id);
             return Convert.ToInt32(obj);
         }
 

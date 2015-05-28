@@ -4,7 +4,7 @@
     float: left;
     margin: 0px;
     list-style: none;
-    min-width:200px;
+    min-width: 200px;
 }
 
     #title li {
@@ -13,11 +13,11 @@
 
 #title2 {
     text-align: left;
-    width: 50%;
+    width: 45%;
     float: left;
     margin: 0px;
     list-style: none;
-    min-width:400px;
+    min-width: 400px;
 }
 
     #title2 li {
@@ -26,11 +26,11 @@
 
 #input {
     text-align: left;
-    width: 50%;
+    width: 45%;
     float: left;
     margin: 0px;
     list-style: none;
-    min-width:400px;
+    min-width: 400px;
 }
 
     #input input {
@@ -42,24 +42,27 @@
     width: 100%;
     text-align: center;
     clear: both;
-    padding-top:5px;
-    padding-bottom:5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 #editorContainer {
     clear: both;
     width: 100%;
+    text-align: center;
 }
+
+    #editorContainer #editor {
+        margin: 5px 10% 0 10%;
+    }
 
 #detailShowContainer {
     clear: both;
-    width: 100%;
+    width: 77%;
+    text-align: justify;
+    margin-left: 20%;
 }
 
-    #detailShowContainer table {
-        margin:auto; 
-        width:auto;
-    }
 
 .spliter {
     width: 90%;
@@ -67,4 +70,8 @@
     text-align: center;
     margin-top: 2px;
     margin-bottom: 3px;
+}
+
+ul {
+    list-style: none;
 }

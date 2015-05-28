@@ -53,6 +53,26 @@ namespace UDS.Controllers
             return PartialView();
         }
 
+        public ActionResult SubsistenceList()
+        {
+            var user = Session["user"] as User;
+            if (user != null)
+            {
+                int eid = user.Eid;
+                int pagecount;
+                int pageindex = int.Parse(Request["pageindex"]);
+                List<InfoList> data = GetInfoListFromDb("usp_Subsistence", eid, pageindex, 20, out pagecount);
+                ViewData.Model = data;
+                ViewBag.pageCount = pagecount;
+                ViewBag.pageIndex = pagecount == 0 ? 0 : pageindex;
+                ViewBag.frtIndex = pagecount == 0 ? 0 : 1;
+                ViewBag.preIndex = pagecount == 0 ? 0 : (pageindex == 1 ? 1 : pageindex - 1);
+                ViewBag.nxtIndex = pagecount == 0 ? 0 : (pageindex == pagecount ? pageindex : pageindex + 1);
+                ViewData["paras"] = string.Format("pageindex={0}", pageindex);
+            }
+            return PartialView();
+        }
+
         public ActionResult OwnApplyList()
         {
             var user = Session["user"] as User;

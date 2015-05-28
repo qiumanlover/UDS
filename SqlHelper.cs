@@ -39,17 +39,21 @@ namespace UDS
                     }
                 }
             }
-            catch (SqlException SqlExp)
+            catch (SqlException)
             {
-                throw SqlExp;
+                throw;
             }
-            catch (InvalidOperationException IvOExp)
+            catch (InvalidOperationException)
             {
-                throw IvOExp;
+                throw;
             }
-            catch (ArgumentException ArguExp)
+            catch (ArgumentException)
             {
-                throw ArguExp;
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -91,17 +95,21 @@ namespace UDS
                     }
                 }
             }
-            catch (SqlException SqlExp)
+            catch (SqlException)
             {
-                throw SqlExp;
+                throw;
             }
-            catch (InvalidOperationException IvOExp)
+            catch (InvalidOperationException)
             {
-                throw IvOExp;
+                throw;
             }
-            catch (ArgumentException ArguExp)
+            catch (ArgumentException)
             {
-                throw ArguExp;
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -142,17 +150,21 @@ namespace UDS
                     return cmd.ExecuteReader();
                 }
             }
-            catch (SqlException SqlExp)
+            catch (SqlException)
             {
-                throw SqlExp;
+                throw;
             }
-            catch (InvalidOperationException IvOExp)
+            catch (InvalidOperationException)
             {
-                throw IvOExp;
+                throw;
             }
-            catch (ArgumentException ArguExp)
+            catch (ArgumentException)
             {
-                throw ArguExp;
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -187,17 +199,21 @@ namespace UDS
                     return cmd.ExecuteReader(CommandBehavior.CloseConnection);
                 }
             }
-            catch (SqlException SqlExp)
+            catch (SqlException)
             {
-                throw SqlExp;
+                throw;
             }
-            catch (InvalidOperationException IvOExp)
+            catch (InvalidOperationException)
             {
-                throw IvOExp;
+                throw;
             }
-            catch (ArgumentException ArguExp)
+            catch (ArgumentException)
             {
-                throw ArguExp;
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -219,17 +235,21 @@ namespace UDS
             {
                 return ExecuteDataTables(sql, parameters)[0];
             }
-            catch (SqlException SqlExp)
+            catch (SqlException)
             {
-                throw SqlExp;
+                throw;
             }
-            catch (InvalidOperationException IvOExp)
+            catch (InvalidOperationException)
             {
-                throw IvOExp;
+                throw;
             }
-            catch (ArgumentException ArguExp)
+            catch (ArgumentException)
             {
-                throw ArguExp;
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -278,17 +298,21 @@ namespace UDS
                     }
                 }
             }
-            catch (SqlException SqlExp)
+            catch (SqlException)
             {
-                throw SqlExp;
+                throw;
             }
-            catch (InvalidOperationException IvOExp)
+            catch (InvalidOperationException)
             {
-                throw IvOExp;
+                throw;
             }
-            catch (ArgumentException ArguExp)
+            catch (ArgumentException)
             {
-                throw ArguExp;
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -374,17 +398,21 @@ namespace UDS
                 }
                 return dataset;
             }
-            catch (SqlException SqlExp)
+            catch (SqlException)
             {
-                throw SqlExp;
+                throw;
             }
-            catch (InvalidOperationException IvOExp)
+            catch (InvalidOperationException)
             {
-                throw IvOExp;
+                throw;
             }
-            catch (ArgumentException ArguExp)
+            catch (ArgumentException)
             {
-                throw ArguExp;
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -409,17 +437,21 @@ namespace UDS
                 }
                 return adapter;
             }
-            catch (SqlException SqlExp)
+            catch (SqlException)
             {
-                throw SqlExp;
+                throw;
             }
-            catch (InvalidOperationException IvOExp)
+            catch (InvalidOperationException)
             {
-                throw IvOExp;
+                throw;
             }
-            catch (ArgumentException ArguExp)
+            catch (ArgumentException)
             {
-                throw ArguExp;
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -459,25 +491,29 @@ namespace UDS
                     }
                 }
             }
-            catch (SqlException SqlExp)
+            catch (SqlException)
             {
-                throw SqlExp;
+                throw;
             }
-            catch (InvalidOperationException IvOExp)
+            catch (InvalidOperationException)
             {
-                throw IvOExp;
+                throw;
             }
-            catch (ArgumentException ArguExp)
+            catch (ArgumentException)
             {
-                throw ArguExp;
+                throw;
             }
-            catch (InvalidCastException InCExp)
+            catch (InvalidCastException)
             {
-                throw InCExp;
+                throw;
             }
-            catch (IndexOutOfRangeException IndexExp)
+            catch (IndexOutOfRangeException)
             {
-                throw IndexExp;
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -508,17 +544,21 @@ namespace UDS
                 }
                 return dt;
             }
-            catch (SqlException SqlExp)
+            catch (SqlException)
             {
-                throw SqlExp;
+                throw;
             }
-            catch (InvalidOperationException IvOExp)
+            catch (InvalidOperationException)
             {
-                throw IvOExp;
+                throw;
             }
-            catch (ArgumentException ArguExp)
+            catch (ArgumentException)
             {
-                throw ArguExp;
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
@@ -546,17 +586,21 @@ namespace UDS
                     }
 	            }
             }
-            catch (SqlException SqlExp)
+            catch (SqlException)
             {
-                throw SqlExp;
+                throw;
             }
-            catch (InvalidOperationException IvOExp)
+            catch (InvalidOperationException)
             {
-                throw IvOExp;
+                throw;
             }
-            catch (ArgumentException ArguExp)
+            catch (ArgumentException)
             {
-                throw ArguExp;
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }

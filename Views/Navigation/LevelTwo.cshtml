@@ -19,7 +19,10 @@
                     @Ajax.ActionLink(@"草稿箱", "OwnDraftList", "List", new { pageindex = 1 }, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" }, new { id = "draft" })
                 </li>
                 <li class="nav__submenu-item">
-                    @Ajax.ActionLink(@"已批阅", "RecordSignList", "List", new { pageindex = 1 }, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" }, new { id = "record" })
+                    @Ajax.ActionLink(@"已批阅", "RecordSignList", "List", new {pageindex = 1}, new AjaxOptions() {UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post"}, new {id = "record"})
+                </li>
+                <li class="nav__submenu-item">
+                    @Ajax.ActionLink(@"我的留档", "SubsistenceList", "List", new { pageindex = 1 }, new AjaxOptions() { UpdateTargetId = "replace", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" }, new { id = "subsistence" })
                 </li>
             </ul>
         </li>

@@ -3,7 +3,7 @@
     string stylestr = "display:none";
 }
 
-@using (Ajax.BeginForm("CommonModelInfo", new { id = ViewBag.Id, isOld = ViewBag.Old }, new AjaxOptions() { UpdateTargetId = "writeview", HttpMethod = "Post", InsertionMode = InsertionMode.Replace }))
+@using (Ajax.BeginForm("CommonModelInfo", new { id = ViewBag.Id, isOld = ViewBag.Old }, new AjaxOptions() { UpdateTargetId = "replace", HttpMethod = "Post", InsertionMode = InsertionMode.Replace }))
 {
 
         <ul id="title">
@@ -30,9 +30,9 @@
             var content = $("input#AttachContent").val();
             var editorOption = {
                 initialContent: content,
-                initialFrameHeight: 300,
-                initialFrameWidth: 880,
-                autoHeightEnabled: false,
+                initialFrameHeight: 400,
+                initialFrameWidth: 840,
+                autoHeightEnabled: false
             };
             var editor = new baidu.editor.ui.Editor(editorOption);
             editor.render('editor');
@@ -41,8 +41,8 @@
             });
         </script>
         <div id="btnContainer">
-            <input type="submit" value="保存" id="save" name="save" />
-            <input type="submit" value="发送" id="send" name="send" />
+            <input class="button button-border button-primary button-rounded" type="submit" value="保存" id="save" name="save" />
+            <input class="button button-border button-primary button-rounded" type="submit" value="发送" id="send" name="send" />
         </div>
     }
 }

@@ -1,7 +1,7 @@
 ﻿@model UDS.Models.JBInfo
 
 <script type="text/javascript">
-    function toltime() {
+    function totaltime() {
         var begintime = Date.parse(new Date($("#BeginTime").val().toString().replace(/-/g, "/")));
         var endtime = Date.parse(new Date($("#EndTime").val().toString().replace(/-/g, "/")));
         var toltime = endtime - begintime;
@@ -22,7 +22,7 @@
 
     <ul id="input">
         <li>
-            @Html.TextBoxFor(model => model.BeginTime, new { onclick = "laydate({ istime: true, min : laydate.now(" + ViewBag.Before + "), format: 'YYYY-MM-DD hh:mm', start : laydate.now() })", placeholder = "YYYY-MM-DD hh:mm", Class = "laydate-icon-molv", value = DateTime.Now.ToString(), style = "width:150px;" })
+            @Html.TextBoxFor(model => model.BeginTime, new { onclick = "laydate({ istime: true, min : laydate.now(" + ViewBag.Before + "), format: 'YYYY-MM-DD hh:mm', start : laydate.now() })", placeholder = "YYYY-MM-DD hh:mm", Class = "laydate-icon-molv", style = "width:150px;" })
             @Html.ValidationMessageFor(model => model.BeginTime)
         </li>
         <li>
@@ -45,8 +45,8 @@
     if (ViewBag.Display == 1)
     {
         <div id="btnContainer">
-            <input type="submit" value="保存" id="save" name="save" onclick="totaltime()" />
-            <input type="submit" value="发送" id="send" name="send" onclick="totaltime()" />
+            <input class="button button-border button-primary button-rounded" type="submit" value="保存" id="save" name="save" onclick="totaltime()" />
+            <input class="button button-border button-primary button-rounded" type="submit" value="发送" id="send" name="send" onclick="totaltime()" />
         </div>
     }
 }

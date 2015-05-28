@@ -85,7 +85,6 @@ D:\Project\UDS\bin\zh-Hans\System.Web.Razor.resources.dll
 D:\Project\UDS\bin\zh-Hans\System.Web.WebPages.resources.dll
 D:\Project\UDS\bin\zh-Hans\System.Web.WebPages.Deployment.resources.dll
 D:\Project\UDS\bin\zh-Hans\System.Web.WebPages.Razor.resources.dll
-D:\Project\UDS\obj\Debug\UDS.csprojResolveAssemblyReference.cache
 D:\Project\UDS\obj\Debug\UDS.Properties.Resources.resources
 D:\Project\UDS\obj\Debug\UDS.csproj.GenerateResource.Cache
 D:\Project\UDS\obj\Debug\UDS.dll
@@ -164,3 +163,4 @@ F:\backup\UDS\obj\Debug\UDS.csproj.GenerateResource.Cache
 F:\backup\UDS\obj\Debug\UDS.dll
 F:\backup\UDS\obj\Debug\UDS.pdb
 F:\backup\UDS\obj\Debug\UDS.csprojResolveAssemblyReference.cache
+D:\Project\UDS\obj\Debug\UDS.csprojResolveAssemblyReference.cache

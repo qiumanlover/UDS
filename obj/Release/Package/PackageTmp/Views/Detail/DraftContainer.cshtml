@@ -11,11 +11,15 @@
             string[] items = item.Split(new string[] { "=" }, StringSplitOptions.RemoveEmptyEntries);
             paras.Add(items[0], items[1]);
         }
-}
+    }
 </head>
 <body>
-    <div style="float:left">
+    <div style="float: left">
         @Ajax.ActionLink("返回", "OwnDraftList", "List", paras, new AjaxOptions() { UpdateTargetId = "replace ", InsertionMode = InsertionMode.Replace, HttpMethod = "Post" })
+    </div>
+    <div style="margin-bottom: 15px; text-align: center; width: 100%; font-size: 22px;">
+        @ViewBag.formname
+        <hr style="margin-top: 10px;" />
     </div>
     <div style="width:100%">
         @Html.Action(pageName, new { innerid = ViewBag.InnerId, show = ViewBag.Show, id = ViewBag.Id, isOld = ViewBag.isOld })
