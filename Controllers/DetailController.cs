@@ -358,8 +358,9 @@ namespace UDS.Controllers
                             if (signposlist.Contains(endPosId))
                             {
                                 int startIndex = signposlist.IndexOf(endPosId);
-                                int endIndex = signposlist.Count - 2;
-                                signposlist.RemoveRange(startIndex, endIndex);
+                                int endIndex = signposlist.Count - 1;
+                                int count = endIndex - startIndex;
+                                signposlist.RemoveRange(startIndex, count);
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
@@ -388,8 +389,9 @@ namespace UDS.Controllers
                             if (signposlist.Contains(endPosId))
                             {
                                 int startIndex = signposlist.IndexOf(endPosId);
-                                int endIndex = signposlist.Count - 2;
-                                signposlist.RemoveRange(startIndex, endIndex);
+                                int endIndex = signposlist.Count - 1;
+                                int count = endIndex - startIndex;
+                                signposlist.RemoveRange(startIndex, count);
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
@@ -529,8 +531,9 @@ namespace UDS.Controllers
                             if (signposlist.Contains(endPosId))
                             {
                                 int startIndex = signposlist.IndexOf(endPosId);
-                                int endIndex = signposlist.Count - 2;
-                                signposlist.RemoveRange(startIndex, endIndex);
+                                int endIndex = signposlist.Count - 1;
+                                int count = endIndex - startIndex;
+                                signposlist.RemoveRange(startIndex, count);
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
@@ -559,8 +562,9 @@ namespace UDS.Controllers
                             if (signposlist.Contains(endPosId))
                             {
                                 int startIndex = signposlist.IndexOf(endPosId);
-                                int endIndex = signposlist.Count - 2;
-                                signposlist.RemoveRange(startIndex, endIndex);
+                                int endIndex = signposlist.Count - 1;
+                                int count = endIndex - startIndex;
+                                signposlist.RemoveRange(startIndex, count);
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
@@ -1029,8 +1033,9 @@ namespace UDS.Controllers
                             if (signposlist.Contains(endPosId))
                             {
                                 int startIndex = signposlist.IndexOf(endPosId);
-                                int endIndex = signposlist.Count - 2;
-                                signposlist.RemoveRange(startIndex, endIndex);
+                                int endIndex = signposlist.Count - 1;
+                                int count = endIndex - startIndex;
+                                signposlist.RemoveRange(startIndex, count);
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
@@ -1058,8 +1063,9 @@ namespace UDS.Controllers
                             if (signposlist.Contains(endPosId))
                             {
                                 int startIndex = signposlist.IndexOf(endPosId);
-                                int endIndex = signposlist.Count - 2;
-                                signposlist.RemoveRange(startIndex, endIndex);
+                                int endIndex = signposlist.Count - 1;
+                                int count = endIndex - startIndex;
+                                signposlist.RemoveRange(startIndex, count);
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
@@ -1126,8 +1132,9 @@ namespace UDS.Controllers
                             if (signposlist.Contains(endPosId))
                             {
                                 int startIndex = signposlist.IndexOf(endPosId);
-                                int endIndex = signposlist.Count - 2;
-                                signposlist.RemoveRange(startIndex, endIndex);
+                                int endIndex = signposlist.Count - 1;
+                                int count = endIndex - startIndex;
+                                signposlist.RemoveRange(startIndex, count);
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
@@ -1156,8 +1163,9 @@ namespace UDS.Controllers
                             if (signposlist.Contains(endPosId))
                             {
                                 int startIndex = signposlist.IndexOf(endPosId);
-                                int endIndex = signposlist.Count - 2;
-                                signposlist.RemoveRange(startIndex, endIndex);
+                                int endIndex = signposlist.Count - 1;
+                                int count = endIndex - startIndex;
+                                signposlist.RemoveRange(startIndex, count);
                             }
                         }
                         string signlist = string.Join("|", signposlist.ToArray());
